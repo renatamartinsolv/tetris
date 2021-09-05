@@ -8,16 +8,14 @@ class Tetris{
 
     private:
 
-        int c;
-        int l;
-        char** jogo;
+        int colunas;
+        int *alturas;
+        char **jogo;
 
     public:
 
-        Tetris();
+        Tetris(const int);
         ~Tetris();
-
-        Tetris(int c);
 
         char get(int c,int l);
 
@@ -29,7 +27,13 @@ class Tetris{
         void removeColuna(int c);
         void removeLinhasCompletas();
 
-        void exibeJogo();  
+        void exibeJogo(); 
+        bool adicionaI(int, int, int); 
+        bool adicionaJ(int, int, int);
+        bool adicionaL(int, int, int);
+        bool adicionaO(int, int, int);
+        bool adicionaS(int, int, int);
+        bool adicionaT(int, int, int);
+        bool adicionaZ(int, int, int);
 };
-
 #endif
