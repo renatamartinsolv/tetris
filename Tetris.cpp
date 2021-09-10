@@ -6,11 +6,12 @@
         colunas = c;
         alturas = new int[colunas];
 
-        jogo = new char*[colunas];
-        for(int i = 0; i <colunas; i++){
-            jogo[i] = new char;
+        //inicialização do vetor de alturas em 0
+        for (int i = 0; i<colunas; i++){
             alturas[i] = 0;
         }
+
+        jogo = new char*[colunas];
     }
 
     Tetris::~Tetris(){
@@ -19,8 +20,12 @@
         delete (jogo);
     }
     
+
     char Tetris::get(int c,int l){
-        if (l<alturas[c] && c<colunas) return jogo[l][c];
+        //verificação da existência do pixel no jogo
+        if (l<alturas[c] && c<colunas) 
+            return jogo[c][l];
+
         return ' ';
     }
 
@@ -29,16 +34,52 @@
     }
 
     int Tetris::getAltura(int c){
-        return alturas[c];
+        //verificação da existência da coluna no jogo
+        if (c < colunas)
+            return alturas[c];
+        return 0;
     }
 
     int Tetris::getAltura(){
         int alturaMaxima = 0;
         for (int i = 0; i<colunas; i++){
-            if (alturas[i]>alturaMaxima) alturaMaxima = alturas[i];
+            if (alturas[i]>alturaMaxima) 
+                alturaMaxima = alturas[i];
         }
         return alturaMaxima;
     }
+
+
+    void Tetris::removeColuna(int c){
+        for (int i = c+1; i<colunas; i++){
+            for (int j = 0; j<alturas[i]; j++){
+                jogo[i-1][j] = jogo[i][j];
+            }
+        }
+        for (int i = c+1; i<colunas; i++){
+            alturas[i-1] = alturas[i];
+        }
+        colunas--;
+        alturas[getNumColunas()] = 0;;
+    }
+
+    void Tetris::removeLinhasCompletas(){
+
+    }
+
+
+    void Tetris::exibeJogo(){
+        int altura;
+        int alturaMaxima = getAltura();
+
+        for (int i = 0; alturaMaxima; i++){
+            for (int j = 0; j<colunas; j++){
+                cout << get(j, i) << " " << endl;
+            }
+            cout << endl;
+        }
+    }
+
 
     bool Tetris::adicionaForma(int coluna,int linha, char id, int rotacao){
         if (coluna > colunas-1) {
@@ -48,7 +89,6 @@
         bool resposta = false;
         switch(id){
             case 'I':
-                cout << "Adicionando a peca " << id << endl;
                 resposta = adicionaI(coluna, linha, rotacao);
                 break;
             case 'J':
@@ -201,26 +241,4 @@
                 break;
         }
         return resposta;
-    }
-
-    void Tetris::removeColuna(int c){
-
-    }
-
-    void Tetris::removeLinhasCompletas(){
-
-    }
-
-    void Tetris::exibeJogo(){
-        int altura;
-        int alturaMaxima = getAltura();
-
-        for (int i = 0; i<alturaMaxima; i++){
-            for (int j = 0; j<colunas; j++){
-                if (i < alturas[j]){
-                    cout << jogo[i][j] << " ";
-                }
-            }
-            cout << endl;
-        }
     }

@@ -5,10 +5,12 @@ using namespace std;
 
 int main() {
 
-	Tetris tetris = Tetris(4);
-	tetris.exibeJogo();
-	tetris.adicionaForma(0, 5, 'I', 0);
-	tetris.exibeJogo();
-	tetris.~Tetris();
+	Tetris game = Tetris(5);
+	cout << game.getAltura() << endl; 
+	cout << game.getAltura(1) << endl; 
+	cout << game.get(0,0) << endl;
+
+	game.exibeJogo();
+	game.~Tetris();
 	return 0;
 }
