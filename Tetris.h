@@ -18,6 +18,7 @@ class Tetris{
         ~Tetris();
 
         char get(int c,int l);
+        void set(int c, int l, char valor);
 
         int getNumColunas();
         int getAltura(int c);

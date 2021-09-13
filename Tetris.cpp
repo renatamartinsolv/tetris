@@ -49,6 +49,9 @@
         return alturaMaxima;
     }
 
+    void Tetris::set(int c, int l, char valor){
+        
+    }
 
     void Tetris::removeColuna(int c){
         for (int i = c+1; i<colunas; i++){
@@ -82,6 +85,7 @@
 
 
     bool Tetris::adicionaForma(int coluna,int linha, char id, int rotacao){
+        //verifica se o pixel de referência existe no tabuleiro
         if (coluna > colunas-1) {
             cout << "Não é possível adicionar a peça fora do tabuleiro (coluna > colunas-1)" << endl;
             return false;
@@ -117,22 +121,24 @@
     bool Tetris::adicionaI(int coluna,int linha, int rotacao){
         switch (rotacao){
             case 0:
+                //verifica se o pixel de referência está numa altura que permite a adição da peça
                 if (linha-4 < 0) {
                     cout << "Não há altura o suficiente para adicionar abaixo desta linha (linha-4 < 0)" << endl;
                     return false;
                 }
-                for (int i = linha; i>linha-4; i--){
-                    cout << jogo[i][coluna] << endl;
-                    if (jogo[i][coluna]){
-                        cout << "Pixel preenchido com " << jogo[i][coluna] << endl;
-                        return false;   
+                //verifica se os espaços que serão utilizados estão vazios
+                if (get(coluna, linha) == ' ' && get(coluna, linha-1) == ' ' && get(coluna, linha-2) == ' ' && get(coluna, linha-3) == ' '){
+                    //acrescenta a peça
+                    for (int i = 0; i<4; i++){
+                        jogo[linha-i][coluna] = 'I';
                     }
-                }
-                for (int i = 0; i<4; i++){
-                    jogo[linha+i][coluna] = 'I';
-                    cout << linha+1 << " " << coluna << " " << jogo[linha+i][coluna] << endl;
-                }
-                alturas[coluna]+=4;
+                    //atualização da altura da coluna 
+                    if (linha > alturas[coluna]) alturas[coluna] = linha;
+                    //preenchimento dos espaços em branco abaixo da peça 
+                    for (int i = 0; i<alturas[coluna]; i++){
+                        jogo[coluna][i] = get(coluna, i);
+                    }
+                } else return false;
                 return true;
             case 90:
 
