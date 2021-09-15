@@ -6,12 +6,15 @@
         colunas = c;
         alturas = new int[colunas];
 
-        //inicialização do vetor de alturas em 0
+        //inicializacao do vetor de alturas em 0
         for (int i = 0; i<colunas; i++){
             alturas[i] = 0;
         }
 
         jogo = new char*[colunas];
+
+        for (int i = 0; i<colunas; i++)
+            jogo[i] = new char;
     }
 
     Tetris::~Tetris(){
@@ -22,11 +25,10 @@
     
 
     char Tetris::get(int c,int l){
-        //verificação da existência do pixel no jogo
-        if (l<alturas[c] && c<colunas) 
+        //verificacao da existência do pixel no jogo
+        if (l<alturas[c]  && c<colunas) 
             return jogo[c][l];
-
-        return ' ';
+        return '*';
     }
 
     int Tetris::getNumColunas(){
@@ -34,7 +36,7 @@
     }
 
     int Tetris::getAltura(int c){
-        //verificação da existência da coluna no jogo
+        //verificacao da existência da coluna no jogo
         if (c < colunas)
             return alturas[c];
         return 0;
@@ -50,7 +52,8 @@
     }
 
     void Tetris::set(int c, int l, char valor){
-        
+        //preenchimento do pixel
+        jogo[c][l] = char(valor);
     }
 
     void Tetris::removeColuna(int c){
@@ -63,7 +66,8 @@
             alturas[i-1] = alturas[i];
         }
         colunas--;
-        alturas[getNumColunas()] = 0;;
+        delete jogo[colunas];
+        alturas[colunas] = 0;
     }
 
     void Tetris::removeLinhasCompletas(){
@@ -74,20 +78,21 @@
     void Tetris::exibeJogo(){
         int altura;
         int alturaMaxima = getAltura();
-
-        for (int i = 0; alturaMaxima; i++){
+        cout << "------------------------ TETRIS ------------------------" << endl;
+        for (int i = alturaMaxima-1; i>=0; i--){
             for (int j = 0; j<colunas; j++){
-                cout << get(j, i) << " " << endl;
+                cout << get(j, i) << " ";
             }
             cout << endl;
         }
+        cout << "--------------------------------------------------------" << endl;
     }
 
 
     bool Tetris::adicionaForma(int coluna,int linha, char id, int rotacao){
         //verifica se o pixel de referência existe no tabuleiro
         if (coluna > colunas-1) {
-            cout << "Não é possível adicionar a peça fora do tabuleiro (coluna > colunas-1)" << endl;
+            cout << "Nao é possível adicionar a peca fora do tabuleiro (coluna > colunas-1)" << endl;
             return false;
         }
         bool resposta = false;
@@ -119,44 +124,88 @@
     }
 
     bool Tetris::adicionaI(int coluna,int linha, int rotacao){
-        switch (rotacao){
-            case 0:
-                //verifica se o pixel de referência está numa altura que permite a adição da peça
-                if (linha-4 < 0) {
-                    cout << "Não há altura o suficiente para adicionar abaixo desta linha (linha-4 < 0)" << endl;
-                    return false;
-                }
-                //verifica se os espaços que serão utilizados estão vazios
-                if (get(coluna, linha) == ' ' && get(coluna, linha-1) == ' ' && get(coluna, linha-2) == ' ' && get(coluna, linha-3) == ' '){
-                    //acrescenta a peça
-                    for (int i = 0; i<4; i++){
-                        jogo[linha-i][coluna] = 'I';
-                    }
-                    //atualização da altura da coluna 
-                    if (linha > alturas[coluna]) alturas[coluna] = linha;
-                    //preenchimento dos espaços em branco abaixo da peça 
-                    for (int i = 0; i<alturas[coluna]; i++){
-                        jogo[coluna][i] = get(coluna, i);
-                    }
-                } else return false;
-                return true;
-            case 90:
+        if (rotacao == 0 || rotacao == 180)
+        {
 
-                break;
-            case 180:
-                if (linha-4 < 0) return false;
-                for (int i = linha; i>linha-4; i--){
-                    if (!jogo[i][coluna]) return false;   
+            //verifica se o pixel de referência esta numa altura que permite a adicao da peca
+            if (linha-3 < 0)
+            {
+                cout << "Nao ha altura o suficiente para adicionar abaixo desta linha (linha-4 < 0)" << endl;
+                return false;
+            }
+
+            //verifica se os espacos que serao utilizados estao vazios
+            if (get(coluna, linha) == '*' 
+                && get(coluna, linha-1) == '*' 
+                && get(coluna, linha-2) == '*' 
+                && get(coluna, linha-3) == '*')
+            {                
+
+                //acrescenta a peca
+                for (int i = 0; i<4; i++){
+                    set(coluna, linha-i, 'I');
                 }
-                jogo[linha][coluna] = 'I';
-                jogo[linha-1][coluna] = 'I';
-                jogo[linha-2][coluna] = 'I';
-                jogo[linha-3][coluna] = 'I';
-                return true;
-            case 270:
-                break;
+
+                //preenchimento dos espacos abaixo da peca 
+                for (int i = 0; i<linha-3; i++){
+                    set(coluna, i, get(coluna, i));
+                }
+                
+                //atualizacao da altura da coluna 
+                if (linha > alturas[coluna])
+                {
+                    alturas[coluna] = linha+1;
+                }
+
+            } else{
+                return false;
+            } 
+
+            return true;
+
+        }else
+        {
+
+            //verifica se o pixel de referência esta numa largura que permite a adicao da peca
+            if (coluna + 3 > getNumColunas() - 1)
+            {
+                cout << "Nao ha largura o suficiente para adicionar abaixo desta linha." << endl;
+                return false;
+            }
+
+            //verifica se os espacos que serao utilizados estao vazios
+            if(get(coluna, linha) == '*' 
+                && get(coluna+1, linha) == '*' 
+                && get(coluna+2, linha) == '*' 
+                && get(coluna+3, linha) == '*')
+            {
+
+                
+                //acrescenta a peca
+                for (int i = 0; i<4; i++){
+                    set(coluna+i, linha, 'I');
+                }   
+
+                //preenchimento dos espacos abaixo da peca 
+                for (int i = coluna; i<coluna+4; i++){
+                    for (int j = 0; j<linha; j++){
+                        set(i, j, get(i, j));
+                    }
+                }
+
+                //atualizacao da altura da coluna 
+                for (int i = coluna; i<coluna+4; i++){
+                    if (alturas[i] < linha){
+                        alturas[i] = linha+1;
+                    }
+                }
+
+            } else
+            {
+                return false;
+            }
         }
-        return false;
+        return true;
     }
 
     bool Tetris::adicionaJ(int coluna,int linha, int rotacao){
