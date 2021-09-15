@@ -1,4 +1,3 @@
-#include <string>
 #include <iostream>
 #include "Tetris.h"
 
@@ -11,15 +10,19 @@
             alturas[i] = 0;
         }
 
+        //inicialização do vetor principal
         jogo = new char*[colunas];
 
+        //inicialização de cada vetor secundário
         for (int i = 0; i<colunas; i++)
             jogo[i] = new char;
     }
 
     Tetris::~Tetris(){
         for (int i=0; i < colunas; i++)
+            //apaga todos os vetores dentro do vetor principal
             delete (jogo[i]);
+        //apaga o vetor principal
         delete (jogo);
     }
     
@@ -44,27 +47,32 @@
 
     int Tetris::getAltura(){
         int alturaMaxima = 0;
+
+        //para cada valor de altura, verifica se é maior que a altura máxima encontrada até o momento
         for (int i = 0; i<colunas; i++){
             if (alturas[i]>alturaMaxima) 
+                //se for, substitui
                 alturaMaxima = alturas[i];
         }
         return alturaMaxima;
     }
+
 
     void Tetris::set(int c, int l, char valor){
         //preenchimento do pixel
         jogo[c][l] = char(valor);
     }
 
+
     void Tetris::removeColuna(int c){
+        //passa os dados das colunas seguintes a c para sua antecessora
         for (int i = c+1; i<colunas; i++){
             for (int j = 0; j<alturas[i]; j++){
                 jogo[i-1][j] = jogo[i][j];
             }
-        }
-        for (int i = c+1; i<colunas; i++){
             alturas[i-1] = alturas[i];
         }
+        //apaga a última coluna da matriz
         colunas--;
         delete jogo[colunas];
         alturas[colunas] = 0;
@@ -75,27 +83,17 @@
     }
 
 
-    void Tetris::exibeJogo(){
-        int altura;
-        int alturaMaxima = getAltura();
-        cout << "------------------------ TETRIS ------------------------" << endl;
-        for (int i = alturaMaxima-1; i>=0; i--){
-            for (int j = 0; j<colunas; j++){
-                cout << get(j, i) << " ";
-            }
-            cout << endl;
-        }
-        cout << "--------------------------------------------------------" << endl;
-    }
 
-
-    bool Tetris::adicionaForma(int coluna,int linha, char id, int rotacao){
-        //verifica se o pixel de referência existe no tabuleiro
+    bool Tetris::adicionaForma(int coluna, int linha, char id, int rotacao){
+        
+        //verifica se a coluna do pixel de referência existe no tabuleiro
         if (coluna > colunas-1) {
             cout << "Nao é possível adicionar a peca fora do tabuleiro (coluna > colunas-1)" << endl;
             return false;
         }
         bool resposta = false;
+
+        //delega conforme a peça
         switch(id){
             case 'I':
                 resposta = adicionaI(coluna, linha, rotacao);
@@ -123,10 +121,10 @@
 
     }
 
-    bool Tetris::adicionaI(int coluna,int linha, int rotacao){
+    bool Tetris::adicionaI(int coluna, int linha, int rotacao)
+    {
         if (rotacao == 0 || rotacao == 180)
         {
-
             //verifica se o pixel de referência esta numa altura que permite a adicao da peca
             if (linha-3 < 0)
             {
@@ -146,12 +144,12 @@
                     set(coluna, linha-i, 'I');
                 }
 
-                //preenchimento dos espacos abaixo da peca 
+                //preenche os espacos abaixo da peca 
                 for (int i = 0; i<linha-3; i++){
                     set(coluna, i, get(coluna, i));
                 }
                 
-                //atualizacao da altura da coluna 
+                //atualiza aa altura da coluna 
                 if (linha > alturas[coluna])
                 {
                     alturas[coluna] = linha+1;
@@ -208,7 +206,23 @@
         return true;
     }
 
-    bool Tetris::adicionaJ(int coluna,int linha, int rotacao){
+    bool Tetris::adicionaJ(int coluna, int linha, int rotacao){
+        bool resposta = false;
+        switch (rotacao){
+            case 0:
+            
+                break;
+            case 90:
+                break;
+            case 180:
+                break;
+            case 270:
+                break;
+        }
+        return resposta;
+    }
+
+    bool Tetris::adicionaL(int coluna, int linha, int rotacao){
         bool resposta = false;
         switch (rotacao){
             case 0:
@@ -223,7 +237,7 @@
         return resposta;
     }
 
-    bool Tetris::adicionaL(int coluna,int linha, int rotacao){
+    bool Tetris::adicionaO(int coluna, int linha, int rotacao){
         bool resposta = false;
         switch (rotacao){
             case 0:
@@ -238,22 +252,7 @@
         return resposta;
     }
 
-    bool Tetris::adicionaO(int coluna,int linha, int rotacao){
-        bool resposta = false;
-        switch (rotacao){
-            case 0:
-                break;
-            case 90:
-                break;
-            case 180:
-                break;
-            case 270:
-                break;
-        }
-        return resposta;
-    }
-
-    bool Tetris::adicionaS(int coluna,int linha, int rotacao){
+    bool Tetris::adicionaS(int coluna, int linha, int rotacao){
         bool resposta = false;
         switch (rotacao){
             case 0:
@@ -297,3 +296,18 @@
         }
         return resposta;
     }
+    
+    
+    void Tetris::exibeJogo(){
+        int altura;
+        int alturaMaxima = getAltura();
+        cout << "------------------------ TETRIS ------------------------" << endl;
+        for (int i = alturaMaxima-1; i>=0; i--){
+            for (int j = 0; j<colunas; j++){
+                cout << get(j, i) << " ";
+            }
+            cout << endl;
+        }
+        cout << "--------------------------------------------------------" << endl;
+    }
+
