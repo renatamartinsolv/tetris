@@ -126,7 +126,7 @@
         if (rotacao == 0 || rotacao == 180)
         {
             //verifica se o pixel de referência esta numa altura que permite a adicao da peca
-            if (linha-3 < 0)
+            if (linha-3 < 0 && coluna >= getNumColunas())
             {
                 cout << "Nao ha altura o suficiente para adicionar abaixo desta linha (linha-4 < 0)" << endl;
                 return false;
@@ -149,7 +149,7 @@
                     set(coluna, i, get(coluna, i));
                 }
                 
-                //atualiza aa altura da coluna 
+                //atualiza a altura da coluna 
                 if (linha > alturas[coluna])
                 {
                     alturas[coluna] = linha+1;
@@ -165,11 +165,8 @@
         {
 
             //verifica se o pixel de referência esta numa largura que permite a adicao da peca
-            if (coluna + 3 > getNumColunas() - 1)
-            {
-                cout << "Nao ha largura o suficiente para adicionar abaixo desta linha." << endl;
+            if (coluna + 3 >= getNumColunas() || linha < 0)
                 return false;
-            }
 
             //verifica se os espacos que serao utilizados estao vazios
             if(get(coluna, linha) == '*' 
@@ -207,14 +204,122 @@
     }
 
     bool Tetris::adicionaJ(int coluna, int linha, int rotacao){
+
         switch (rotacao){
             case 0:
-                
+                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
+                if (linha - 1 < 0 || coluna + 3 >= getNumColunas()) 
+                    return false;
+
+                //verifica se os espacos que serao utilizados estao vazios
+                if (get(coluna, linha) == '*'
+                    && get(coluna+1, linha) == '*'
+                    && get(coluna+2, linha) == '*'
+                    && get(coluna+3, linha) == '*'
+                    && get(coluna+3, linha-1) == '*')
+                {
+                    //acrescenta a peca
+                    set(coluna, linha, 'J');
+                    set(coluna+1, linha, 'J');
+                    set(coluna+2, linha, 'J');
+                    set(coluna+3, linha, 'J');
+                    set(coluna+3, linha-1, 'J');
+
+                    //preenche os espacos abaixo da peca 
+                    for (int i = 0; i<3; i++){
+                        for (int j = 0; j<linha; j++){
+                            set(coluna+i, j, get(coluna+i, j));
+                        }
+                    }
+                    for (int j = 0; j<linha-1; j++){
+                        set(coluna+3, j, get(coluna+3, j));
+                    }
+
+                    //atualiza a altura da coluna
+                    for (int i = 0; i<4; i++){
+                        if (alturas[coluna+i] < linha+1)
+                            alturas[coluna+i] = linha+1;
+                    } 
+
+                } else 
+                    return false;
+
                 return true;
+
             case 90:
-                break;
+                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
+                if (linha - 3 < 0 || coluna + 1 >= getNumColunas()) 
+                    return false;
+
+                //verifica se os espacos que serao utilizados estao vazios
+                if (get(coluna+1, linha) == '*'
+                    && get(coluna+1, linha-1) == '*'
+                    && get(coluna+1, linha-2) == '*'
+                    && get(coluna+1, linha-3) == '*'
+                    && get(coluna, linha-3) == '*')
+                {
+                    //acrescenta a peca
+                    set(coluna+1, linha, 'J');
+                    set(coluna+1, linha-1, 'J');
+                    set(coluna+1, linha-2, 'J');
+                    set(coluna+1, linha-3, 'J');
+                    set(coluna, linha-3, 'J');
+
+                    //preenche os espacos abaixo da peca 
+                    for (int i = 0; i<linha-3; i++){
+                        set(coluna, i, get(coluna, i));
+                        set(coluna+1, i, get(coluna+1, i));
+                    }
+
+                    //atualiza a altura da coluna
+                    if (alturas[coluna] < linha-3) 
+                        alturas[coluna] = linha-2;
+                    if (alturas[coluna+1] < linha) 
+                        alturas[coluna+1] = linha+1;
+
+                } else 
+                    return false;
+
+                return true;
             case 180:
-                break;
+
+                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
+                if (linha - 1 < 0 || coluna + 3 >= getNumColunas()) 
+                    return false;
+
+                //verifica se os espacos que serao utilizados estao vazios
+                if (get(coluna, linha) == '*'
+                    && get(coluna, linha-1) == '*'
+                    && get(coluna+1, linha-1) == '*'
+                    && get(coluna+2, linha-1) == '*'
+                    && get(coluna+3, linha-1) == '*')
+                {
+                    //acrescenta a peca
+                    set(coluna, linha, 'J');
+                    set(coluna, linha-1, 'J');
+                    set(coluna+1, linha-1, 'J');
+                    set(coluna+2, linha-1, 'J');
+                    set(coluna+3, linha-1, 'J');
+
+                    //preenche os espacos abaixo da peca 
+                    for (int i = 0; i<4; i++){
+                        for (int j = 0; j<linha-1; j++){
+                            set(coluna+i, j, get(coluna+i, j));
+                        }
+                    }
+
+                    //atualiza a altura da coluna
+                    for (int i = 1; i<4; i++){
+                        if (alturas[coluna+i] < linha)
+                            alturas[coluna+i] = linha;
+                    } 
+                     if (alturas[coluna] < linha+1)
+                            alturas[coluna] = linha+1;
+
+                } else 
+                    return false;
+
+                return true;
             case 270:
                 break;
         }
@@ -237,8 +342,9 @@
 
     bool Tetris::adicionaO(int coluna, int linha, int rotacao){
 
-        //verifica se o pixel de referência esta numa altura que permite a adicao da peca
-        if (linha - 1 < 0) return false;
+        //verifica se o pixel de referência esta numa altura/largura que permite a adicao da peca
+        if (linha - 1 < 0 && coluna + 1 >= getNumColunas()) 
+            return false;
 
         //verifica se os espacos que serao utilizados estao vazios
         if (get(coluna, linha) == '*'
