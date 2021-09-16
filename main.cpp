@@ -24,5 +24,14 @@ int main() {
 	cout << "Removendo coluna 4" << endl;
 	game.removeColuna(4);
 	game.exibeJogo();
+	game.adicionaForma(1, 1, 'O', 0);
+	game.exibeJogo();
+	game.adicionaForma(7, 3, 'O', 90);
+	game.exibeJogo();
+	game.adicionaForma(2, 1, 'O', 180);
+	game.exibeJogo();
+	game.adicionaForma(10, 10, 'O', 270);
+	game.exibeJogo();
+
 	return 0;
 }
