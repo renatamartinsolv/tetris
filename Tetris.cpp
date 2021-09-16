@@ -321,7 +321,43 @@
 
                 return true;
             case 270:
-                break;
+                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
+                if (linha - 3 < 0 || coluna + 1 >= getNumColunas()) 
+                    return false;
+
+                //verifica se os espacos que serao utilizados estao vazios
+                if (get(coluna, linha) == '*'
+                    && get(coluna, linha-1) == '*'
+                    && get(coluna, linha-2) == '*'
+                    && get(coluna, linha-3) == '*'
+                    && get(coluna+1, linha) == '*')
+                {
+                    //acrescenta a peca
+                    set(coluna, linha, 'J');
+                    set(coluna, linha-1, 'J');
+                    set(coluna, linha-2, 'J');
+                    set(coluna, linha-3, 'J');
+                    set(coluna+1, linha, 'J');
+
+                    //preenche os espacos abaixo da peca 
+                    for (int i = 0; i<linha-3; i++){
+                        set(coluna, i, get(coluna, i));
+                        
+                    }
+                    for (int i = 0; i<linha; i++){
+                       set(coluna+1, i, get(coluna+1, i));    
+                    }
+
+                    //atualiza a altura da coluna
+                    for (int i = 0; i<2; i++){
+                       if (alturas[coluna+i] < linha) 
+                            alturas[coluna+i] = linha+1;
+                    }
+
+                } else 
+                    return false;
+
+                return true;
         }
     }
 
