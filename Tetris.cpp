@@ -96,17 +96,13 @@
         //delega conforme a peça
         switch(id){
             case 'I':
-                resposta = adicionaI(coluna, linha, rotacao);
-                break;
+                return adicionaI(coluna, linha, rotacao);
             case 'J':
-                resposta = adicionaJ(coluna, linha, rotacao);
-                break;
+                return adicionaJ(coluna, linha, rotacao);
             case 'L':
-                resposta = adicionaL(coluna, linha, rotacao);
-                break;
+                return adicionaL(coluna, linha, rotacao);
             case 'O':
-                resposta = adicionaO(coluna, linha, rotacao);
-                break;
+                return adicionaO(coluna, linha, rotacao);
             case 'S':
                 resposta = adicionaS(coluna, linha, rotacao);
                 break;
@@ -362,18 +358,85 @@
     }
 
     bool Tetris::adicionaL(int coluna, int linha, int rotacao){
-        bool resposta = false;
         switch (rotacao){
             case 0:
-                break;
+                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
+                if (linha - 1 < 0 || coluna + 3 >= getNumColunas()) 
+                    return false;
+
+                //verifica se os espacos que serao utilizados estao vazios
+                if (get(coluna, linha) == '*'
+                    && get(coluna, linha-1) == '*'
+                    && get(coluna+1, linha) == '*'
+                    && get(coluna+2, linha) == '*'
+                    && get(coluna+3, linha) == '*')
+                {
+                    //acrescenta a peca
+                    set(coluna, linha, 'L');
+                    set(coluna, linha-1, 'L');
+                    set(coluna+1, linha, 'L');
+                    set(coluna+2, linha, 'L');
+                    set(coluna+3, linha, 'L');
+
+                    //preenche os espacos abaixo da peca 
+                    for (int i = 1; i<4; i++){
+                        for (int j = 0; j<linha; j++){
+                            set(coluna+i, j, get(coluna+i, j));
+                        }
+                    }
+                    for (int j = 0; j<linha-1; j++){
+                        set(coluna, j, get(coluna, j));
+                    }
+
+                    //atualiza a altura da coluna
+                    for (int i = 0; i<4; i++){
+                        if (alturas[coluna+i] <= linha)
+                            alturas[coluna+i] = linha+1;
+                    } 
+                } else return false;    
+                    return true;
             case 90:
-                break;
+                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
+                if (linha - 3 < 0 || coluna + 1 >= getNumColunas()) 
+                    return false;
+
+                //verifica se os espacos que serao utilizados estao vazios
+                if (get(coluna, linha) == '*'
+                    && get(coluna+1, linha) == '*'
+                    && get(coluna+1, linha-1) == '*'
+                    && get(coluna+1, linha-2) == '*'
+                    && get(coluna+1, linha-3) == '*')
+                {
+                    //acrescenta a peca
+                    set(coluna, linha, 'L');
+                    set(coluna+1, linha, 'L');
+                    set(coluna+1, linha-1, 'L');
+                    set(coluna+1, linha-2, 'L');
+                    set(coluna+1, linha-3, 'L');
+
+                    //preenche os espacos abaixo da peca 
+                    for (int i = 0; i<linha-3; i++){
+                        set(coluna+1, i, get(coluna+1, i));
+                    }
+                    for (int i = 0; i<linha; i++){
+                        set(coluna, i, get(coluna, i));
+
+                    }
+
+                    //atualiza a altura da coluna
+                    for (int i = 0; i<2; i++){
+                        if (alturas[coluna+i] <= linha) 
+                            alturas[coluna+i] = linha+1;
+                    }
+                } else 
+                    return false;
+
+                return true;
             case 180:
                 break;
             case 270:
                 break;
         }
-        return resposta;
     }
 
     bool Tetris::adicionaO(int coluna, int linha, int rotacao){

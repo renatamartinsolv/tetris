@@ -41,6 +41,9 @@ int main() {
 	game.exibeJogo();
 	game.adicionaForma(15, 5, 'J', 270);
 	game.exibeJogo();
-
+	game.adicionaForma(22, 4, 'L', 0);
+	game.exibeJogo();
+	game.adicionaForma(0, 10, 'L', 90);
+	game.exibeJogo();
 	return 0;
 }
