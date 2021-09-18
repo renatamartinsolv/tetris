@@ -83,6 +83,10 @@
     }
 
 
+    bool Tetris::estaPreenchido(int c,int l){
+        //verificacao da existência do pixel no jogo
+        return (l<alturas[c] && c<colunas);
+    }
 
     bool Tetris::adicionaForma(int coluna, int linha, char id, int rotacao){
         
@@ -91,7 +95,6 @@
             cout << "Nao é possível adicionar a peca fora do tabuleiro (coluna > colunas-1)" << endl;
             return false;
         }
-        bool resposta = false;
 
         //delega conforme a peça
         switch(id){
@@ -104,16 +107,13 @@
             case 'O':
                 return adicionaO(coluna, linha, rotacao);
             case 'S':
-                resposta = adicionaS(coluna, linha, rotacao);
-                break;
+                return adicionaS(coluna, linha, rotacao);
             case 'T':
-                resposta = adicionaT(coluna, linha, rotacao);
-                break;
+                return adicionaT(coluna, linha, rotacao);
             case 'Z':
-                resposta = adicionaZ(coluna, linha, rotacao);
-                break;
+                return adicionaZ(coluna, linha, rotacao);
         }
-        return resposta;
+        return false;
 
     }
 
@@ -142,7 +142,8 @@
 
                 //preenche os espacos abaixo da peca 
                 for (int i = 0; i<linha-3; i++){
-                    set(coluna, i, get(coluna, i));
+                    if (!estaPreenchido(coluna, i))
+                        set(coluna, i, '*');
                 }
                 
                 //atualiza a altura da coluna 
@@ -180,7 +181,8 @@
                 //preenchimento dos espacos abaixo da peca 
                 for (int i = coluna; i<coluna+4; i++){
                     for (int j = 0; j<linha; j++){
-                        set(i, j, get(i, j));
+                        if (!estaPreenchido(i, j)) 
+                            set(i, j, '*');
                     }
                 }
 
@@ -224,16 +226,18 @@
                     //preenche os espacos abaixo da peca 
                     for (int i = 0; i<3; i++){
                         for (int j = 0; j<linha; j++){
-                            set(coluna+i, j, get(coluna+i, j));
+                            if (!estaPreenchido(coluna+i, j))
+                                set(coluna+i, j, '*');
                         }
                     }
                     for (int j = 0; j<linha-1; j++){
-                        set(coluna+3, j, get(coluna+3, j));
+                        if (!estaPreenchido(coluna+3, j))
+                            set(coluna+3, j, '*');
                     }
 
                     //atualiza a altura da coluna
                     for (int i = 0; i<4; i++){
-                        if (alturas[coluna+i] < linha+1)
+                        if (alturas[coluna+i] <= linha+1)
                             alturas[coluna+i] = linha+1;
                     } 
 
@@ -263,12 +267,14 @@
 
                     //preenche os espacos abaixo da peca 
                     for (int i = 0; i<linha-3; i++){
-                        set(coluna, i, get(coluna, i));
-                        set(coluna+1, i, get(coluna+1, i));
+                        if (!estaPreenchido(coluna, i))
+                            set(coluna, i, '*');
+                        if (!estaPreenchido(coluna+1, i))
+                            set(coluna+1, i, '*');
                     }
 
                     //atualiza a altura da coluna
-                    if (alturas[coluna] < linha-3) 
+                    if (alturas[coluna] <= linha-3) 
                         alturas[coluna] = linha-2;
                     if (alturas[coluna+1] < linha) 
                         alturas[coluna+1] = linha+1;
@@ -300,16 +306,17 @@
                     //preenche os espacos abaixo da peca 
                     for (int i = 0; i<4; i++){
                         for (int j = 0; j<linha-1; j++){
-                            set(coluna+i, j, get(coluna+i, j));
+                            if (!estaPreenchido(coluna+1, j))
+                                set(coluna+i, j, '*');
                         }
                     }
 
                     //atualiza a altura da coluna
                     for (int i = 1; i<4; i++){
-                        if (alturas[coluna+i] < linha)
+                        if (alturas[coluna+i] <= linha)
                             alturas[coluna+i] = linha;
                     } 
-                     if (alturas[coluna] < linha+1)
+                     if (alturas[coluna] <= linha+1)
                             alturas[coluna] = linha+1;
 
                 } else 
@@ -337,16 +344,18 @@
 
                     //preenche os espacos abaixo da peca 
                     for (int i = 0; i<linha-3; i++){
-                        set(coluna, i, get(coluna, i));
+                        if (!estaPreenchido(coluna, i))
+                            set(coluna, i, '*');
                         
                     }
                     for (int i = 0; i<linha; i++){
-                       set(coluna+1, i, get(coluna+1, i));    
+                       if (!estaPreenchido(coluna+1, i))
+                            set(coluna+1, i, '*');   
                     }
 
                     //atualiza a altura da coluna
                     for (int i = 0; i<2; i++){
-                       if (alturas[coluna+i] < linha) 
+                       if (alturas[coluna+i] <= linha) 
                             alturas[coluna+i] = linha+1;
                     }
 
@@ -354,6 +363,9 @@
                     return false;
 
                 return true;
+
+            default:
+                return false;
         }
     }
 
@@ -381,11 +393,13 @@
                     //preenche os espacos abaixo da peca 
                     for (int i = 1; i<4; i++){
                         for (int j = 0; j<linha; j++){
-                            set(coluna+i, j, get(coluna+i, j));
+                            if(!estaPreenchido(coluna+i, j))
+                                set(coluna+i, j, '*');
                         }
                     }
                     for (int j = 0; j<linha-1; j++){
-                        set(coluna, j, get(coluna, j));
+                        if(!estaPreenchido(coluna, j))
+                            set(coluna, j, '*');
                     }
 
                     //atualiza a altura da coluna
@@ -393,8 +407,11 @@
                         if (alturas[coluna+i] <= linha)
                             alturas[coluna+i] = linha+1;
                     } 
-                } else return false;    
-                    return true;
+
+                } else 
+                    return false;    
+                
+                return true;
             case 90:
                 //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
                 if (linha - 3 < 0 || coluna + 1 >= getNumColunas()) 
@@ -416,10 +433,12 @@
 
                     //preenche os espacos abaixo da peca 
                     for (int i = 0; i<linha-3; i++){
-                        set(coluna+1, i, get(coluna+1, i));
+                        if (!estaPreenchido(coluna+1, i))
+                            set(coluna+1, i, '*');
                     }
                     for (int i = 0; i<linha; i++){
-                        set(coluna, i, get(coluna, i));
+                        if (!estaPreenchido(coluna, i))
+                            set(coluna, i, '*');
 
                     }
 
@@ -433,9 +452,82 @@
 
                 return true;
             case 180:
-                break;
+                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
+                if (linha - 1 < 0 || coluna + 3 >= getNumColunas()) 
+                    return false;
+
+                //verifica se os espacos que serao utilizados estao vazios
+                if (get(coluna+3, linha) == '*'
+                    && get(coluna, linha-1) == '*'
+                    && get(coluna+1, linha-1) == '*'
+                    && get(coluna+2, linha-1) == '*'
+                    && get(coluna+3, linha-1) == '*')
+                {
+                    //acrescenta a peca
+                    set(coluna, linha-1, 'L');
+                    set(coluna+1, linha-1, 'L');
+                    set(coluna+2, linha-1, 'L');
+                    set(coluna+3, linha-1, 'L');
+                    set(coluna+3, linha, 'L');
+
+                    //preenche os espacos abaixo da peca 
+                    for (int i = 0; i<4; i++){
+                        for (int j = 0; j<linha-1; j++){
+                            if (!estaPreenchido(coluna+i, j))
+                                set(coluna+i, j, '*');
+                        }
+                    }
+
+                    //atualiza a altura da coluna
+                    for (int i = 0; i<3; i++){
+                        if (alturas[coluna+i] <= linha-1)
+                            alturas[coluna+i] = linha;
+                    } 
+                     if (alturas[coluna+3] <= linha)
+                            alturas[coluna+3] = linha+1;
+
+                } else 
+                    return false;
+
+                return true;
             case 270:
-                break;
+                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
+                if (linha - 3 < 0 || coluna + 1 >= getNumColunas()) 
+                    return false;
+
+                //verifica se os espacos que serao utilizados estao vazios
+                if (get(coluna, linha) == '*'
+                    && get(coluna, linha-1) == '*'
+                    && get(coluna, linha-2) == '*'
+                    && get(coluna, linha-3) == '*'
+                    && get(coluna+1, linha-3) == '*')
+                {
+                    //acrescenta a peca
+                    set(coluna, linha, 'L');
+                    set(coluna, linha-1, 'L');
+                    set(coluna, linha-2, 'L');
+                    set(coluna, linha-3, 'L');
+                    set(coluna+1, linha-3, 'L');
+
+                    //preenche os espacos abaixo da peca 
+                    for (int i = 0; i<linha-3; i++){
+                        if (!estaPreenchido(coluna, i))
+                            set(coluna, i, '*');
+                        if (!estaPreenchido(coluna+1, i))
+                            set(coluna+1, i, '*');    
+                        
+                    }
+
+                    //atualiza a altura da coluna
+                    if (alturas[coluna] <= linha) 
+                        alturas[coluna] = linha+1;
+                    if (alturas[coluna+1] <= linha-3) 
+                        alturas[coluna+1] = linha-2;
+
+                } else 
+                    return false;
+
+                return true;
         }
     }
 
@@ -459,13 +551,15 @@
 
             //preenche os espacos abaixo da peca 
             for (int i = 0; i<linha-1; i++){
-                set(coluna, i, get(coluna, i));
-                set(coluna+1, i, get(coluna+1, i));
+                if (!estaPreenchido(coluna, i))
+                    set(coluna, i, '*');
+                if (!estaPreenchido(coluna+1, i))
+                    set(coluna+1, i, '*');
             }
 
             //atualiza a altura da coluna
             for (int i = 0; i<2; i++){
-                if (alturas[coluna+i] < linha)
+                if (alturas[coluna+i] <= linha)
                     alturas[coluna+i] = linha+1;
             } 
 
