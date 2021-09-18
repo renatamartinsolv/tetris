@@ -41,5 +41,13 @@ int main() {
 	game.exibeJogo();
 	game.adicionaForma(10, 20, 'L', 270);
 	game.exibeJogo();
+	game.adicionaForma(15, 20, 'S', 0);
+	game.exibeJogo();
+	game.adicionaForma(20, 20, 'S', 180);
+	game.exibeJogo();
+	game.adicionaForma(13, 15, 'S', 90);
+	game.exibeJogo();
+	game.adicionaForma(20, 15, 'S', 270);
+	game.exibeJogo();
 	return 0;
 }
