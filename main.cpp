@@ -6,7 +6,7 @@ using namespace std;
 int main() {
 
 	
-	Tetris game = Tetris(28);
+	Tetris game = Tetris(40);
 	game.adicionaForma(0, 6, 'I', 0);
 	game.exibeJogo();
 	game.adicionaForma(1, 6, 'I', 0);
@@ -49,5 +49,22 @@ int main() {
 	game.exibeJogo();
 	game.adicionaForma(20, 15, 'S', 270);
 	game.exibeJogo();
+	game.adicionaForma(18, 3, 'Z', 0);
+	game.exibeJogo();
+	game.adicionaForma(8, 15, 'Z', 180);
+	game.exibeJogo();
+	game.adicionaForma(5, 15, 'Z', 90);
+	game.exibeJogo();
+	game.adicionaForma(2, 4, 'Z', 270);
+	game.exibeJogo();
+	game.adicionaForma(30, 3, 'T', 0);
+	game.exibeJogo();
+	game.adicionaForma(30, 15, 'T', 180);
+	game.exibeJogo();
+	game.adicionaForma(36, 15, 'T', 90);
+	game.exibeJogo();
+	game.adicionaForma(30, 10, 'T', 270);
+	game.exibeJogo();
+	game.~Tetris();
 	return 0;
 }
