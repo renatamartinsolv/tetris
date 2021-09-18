@@ -12,6 +12,16 @@ class Tetris{
         int *alturas;
         char **jogo;
 
+        bool addI(int, int, int); 
+        bool addJ(int, int, int);
+        bool addL(int, int, int);
+        bool addO(int, int, int);
+        bool addS(int, int, int);
+        bool addT(int, int, int);
+        bool addZ(int, int, int);
+
+        bool estaPreenchido(int, int);
+
     public:
 
         Tetris(const int);
@@ -24,17 +34,11 @@ class Tetris{
         int getAltura(int c);
         int getAltura();
 
+        void exibeJogo(); 
+
         bool adicionaForma(int coluna,int linha, char id, int rotacao);
         void removeColuna(int c);
         void removeLinhasCompletas();
 
-        void exibeJogo(); 
-        bool adicionaI(int, int, int); 
-        bool adicionaJ(int, int, int);
-        bool adicionaL(int, int, int);
-        bool adicionaO(int, int, int);
-        bool adicionaS(int, int, int);
-        bool adicionaT(int, int, int);
-        bool adicionaZ(int, int, int);
 };
 #endif

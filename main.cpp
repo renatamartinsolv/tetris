@@ -29,8 +29,6 @@ int main() {
 	game.exibeJogo();
 	game.adicionaForma(18, 8, 'J', 0);
 	game.exibeJogo();
-	game.adicionaForma(0, 13, 'L', 180);
-	game.exibeJogo();
 	game.adicionaForma(12, 5, 'J', 90);
 	game.exibeJogo();
 	game.adicionaForma(15, 5, 'J', 270);
@@ -39,7 +37,7 @@ int main() {
 	game.exibeJogo();
 	game.adicionaForma(0, 10, 'L', 90);
 	game.exibeJogo();
-	game.adicionaForma(0, 20, 'L', 180);
+	game.adicionaForma(0, 14, 'L', 180);
 	game.exibeJogo();
 	game.adicionaForma(10, 20, 'L', 270);
 	game.exibeJogo();

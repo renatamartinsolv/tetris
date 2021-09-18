@@ -88,43 +88,44 @@
         return (l<alturas[c] && c<colunas);
     }
 
+
     bool Tetris::adicionaForma(int coluna, int linha, char id, int rotacao){
         
         //verifica se a coluna do pixel de referência existe no tabuleiro
         if (coluna > colunas-1) {
-            cout << "Nao é possível adicionar a peca fora do tabuleiro (coluna > colunas-1)" << endl;
+            cout << "Nao é possível addr a peca fora do tabuleiro (coluna > colunas-1)" << endl;
             return false;
         }
 
         //delega conforme a peça
         switch(id){
             case 'I':
-                return adicionaI(coluna, linha, rotacao);
+                return addI(coluna, linha, rotacao);
             case 'J':
-                return adicionaJ(coluna, linha, rotacao);
+                return addJ(coluna, linha, rotacao);
             case 'L':
-                return adicionaL(coluna, linha, rotacao);
+                return addL(coluna, linha, rotacao);
             case 'O':
-                return adicionaO(coluna, linha, rotacao);
+                return addO(coluna, linha, rotacao);
             case 'S':
-                return adicionaS(coluna, linha, rotacao);
+                return addS(coluna, linha, rotacao);
             case 'T':
-                return adicionaT(coluna, linha, rotacao);
+                return addT(coluna, linha, rotacao);
             case 'Z':
-                return adicionaZ(coluna, linha, rotacao);
+                return addZ(coluna, linha, rotacao);
         }
         return false;
 
     }
 
-    bool Tetris::adicionaI(int coluna, int linha, int rotacao)
+    bool Tetris::addI(int coluna, int linha, int rotacao)
     {
         if (rotacao == 0 || rotacao == 180)
         {
             //verifica se o pixel de referência esta numa altura que permite a adicao da peca
             if (linha-3 < 0 && coluna >= getNumColunas())
             {
-                cout << "Nao ha altura o suficiente para adicionar abaixo desta linha (linha-4 < 0)" << endl;
+                cout << "Nao ha altura o suficiente para addr abaixo desta linha (linha-4 < 0)" << endl;
                 return false;
             }
 
@@ -201,7 +202,7 @@
         return true;
     }
 
-    bool Tetris::adicionaJ(int coluna, int linha, int rotacao){
+    bool Tetris::addJ(int coluna, int linha, int rotacao){
 
         switch (rotacao){
             case 0:
@@ -369,7 +370,7 @@
         }
     }
 
-    bool Tetris::adicionaL(int coluna, int linha, int rotacao){
+    bool Tetris::addL(int coluna, int linha, int rotacao){
         switch (rotacao){
             case 0:
                 //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
@@ -531,7 +532,7 @@
         }
     }
 
-    bool Tetris::adicionaO(int coluna, int linha, int rotacao){
+    bool Tetris::addO(int coluna, int linha, int rotacao){
 
         //verifica se o pixel de referência esta numa altura/largura que permite a adicao da peca
         if (linha - 1 < 0 && coluna + 1 >= getNumColunas()) 
@@ -569,7 +570,7 @@
         return true;
     }
 
-    bool Tetris::adicionaS(int coluna, int linha, int rotacao){
+    bool Tetris::addS(int coluna, int linha, int rotacao){
         bool resposta = false;
         switch (rotacao){
             case 0:
@@ -584,7 +585,7 @@
         return resposta;
     }
 
-    bool Tetris::adicionaT(int coluna,int linha, int rotacao){
+    bool Tetris::addT(int coluna,int linha, int rotacao){
         bool resposta = false;
         switch (rotacao){
             case 0:
@@ -599,7 +600,7 @@
         return resposta;
     }
 
-    bool Tetris::adicionaZ(int coluna,int linha, int rotacao){
+    bool Tetris::addZ(int coluna,int linha, int rotacao){
         bool resposta = false;
         switch (rotacao){
             case 0:
