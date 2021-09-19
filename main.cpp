@@ -6,24 +6,19 @@ using namespace std;
 int main() {
 
 	
-	Tetris game = Tetris(40);
-	game.adicionaForma(0, 6, 'I', 0);
+	Tetris game = Tetris(8);
+	game.adicionaForma(0, 0, 'I', 90);
 	game.exibeJogo();
-	game.adicionaForma(1, 6, 'I', 0);
+	game.adicionaForma(4, 0, 'I', 90);
 	game.exibeJogo();
-	game.adicionaForma(6, 4, 'I', 90);
+	game.adicionaForma(0, 2, 'J', 180);
 	game.exibeJogo();
-	game.adicionaForma(6, 5, 'I', 90);
+	game.adicionaForma(4, 2, 'J', 180);
 	game.exibeJogo();
-	game.adicionaForma(3, 8, 'I', 270);
+	cout << "removendo" << endl;
+	game.removeLinhasCompletas();
 	game.exibeJogo();
-	game.adicionaForma(5, 3, 'I', 180);
-	game.exibeJogo();
-	game.adicionaForma(1, 1, 'O', 0);
-	game.exibeJogo();
-	game.adicionaForma(7, 3, 'O', 90);
-	game.exibeJogo();
-	game.adicionaForma(2, 1, 'O', 180);
+	/* game.adicionaForma(2, 1, 'O', 180);
 	game.exibeJogo();
 	game.adicionaForma(10, 10, 'O', 270);
 	game.exibeJogo();
@@ -64,7 +59,7 @@ int main() {
 	game.adicionaForma(36, 15, 'T', 90);
 	game.exibeJogo();
 	game.adicionaForma(30, 10, 'T', 270);
-	game.exibeJogo();
+	game.exibeJogo(); */
 	game.~Tetris();
 	return 0;
 }

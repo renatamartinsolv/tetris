@@ -27,14 +27,12 @@ class Tetris{
         Tetris(const int);
         ~Tetris();
 
-        char get(int c,int l);
+        char get(int c,int l) const;
         void set(int c, int l, char valor);
 
-        int getNumColunas();
-        int getAltura(int c);
-        int getAltura();
-
-        void exibeJogo(); 
+        int getNumColunas() const;
+        int getAltura(int c) const;
+        int getAltura() const;
 
         bool adicionaForma(int coluna,int linha, char id, int rotacao);
         void removeColuna(int c);
