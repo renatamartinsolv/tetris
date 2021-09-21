@@ -81,24 +81,37 @@
 
     void Tetris::removeLinhasCompletas(){
         int alturaMaxima = getAltura();
-        int linhaParaRemocao = 0;
-            for (int i = 0; i < colunas; i++){
-                char * colunaAuxiliar = new char(alturas[i]-1);
-                int k = 0;
-                for (int j = 0; j<alturas[i]; j++){
-                    if (j != linhaParaRemocao){
-                        colunaAuxiliar[k] = jogo[i][j];
-                        k++;
-                    }
+        int linhaParaRemocao;
+        int estaCompleta = true;
+        for (int linhaAuxiliar = 0; linhaAuxiliar < alturaMaxima; linhaAuxiliar++){
+            cout << linhaAuxiliar << " linha sendo analisada" << endl;
+            estaCompleta = true;
+            for (int x = 0; x<colunas; x++){
+                if (get(x, linhaAuxiliar) == ' '){
+                    estaCompleta = false;
+                    break;
                 }
-                delete jogo[i];
-                jogo[i]  = new char[k];
-                alturas[i] = k;
-                for (int l = 0; l<k; l++){
-                    set(i, l, colunaAuxiliar[l]);
-                }
-                delete colunaAuxiliar;
             }
+            if(estaCompleta){
+                cout << "a linha " << linhaAuxiliar << " ta completa" << endl;
+                linhaParaRemocao = linhaAuxiliar;
+                for (int i = 0; i < colunas; i++){
+                    cout << "substituindo coluna " << i << endl;
+                    char *colunaAuxiliar = jogo[i];
+                    jogo[i]  = new char[alturas[i]-1];
+                    int k = 0;
+                    for (int j = 0; j<alturas[i]; j++){
+                        if (j != linhaParaRemocao){
+                            set(i, k, colunaAuxiliar[j]);
+                            k++;
+                        }
+                    }
+                    alturas[i] = k;
+                    delete[] colunaAuxiliar;
+                }
+            }
+        }
+
     }
 
 
@@ -920,9 +933,8 @@
         }
         return false;
     }
-   
-    
-/*     void Tetris::exibeJogo(){
+
+    void Tetris::exibeJogo(){
         int altura;
         int alturaMaxima = getAltura();
         cout << "------------------------ TETRIS ------------------------" << endl;
@@ -933,5 +945,4 @@
             cout << endl;
         }
         cout << "--------------------------------------------------------" << endl;
-    } */
-
+    }

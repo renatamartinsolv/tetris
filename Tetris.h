@@ -34,6 +34,8 @@ class Tetris{
         int getAltura(int c) const;
         int getAltura() const;
 
+        void exibeJogo(); 
+
         bool adicionaForma(int coluna,int linha, char id, int rotacao);
         void removeColuna(int c);
         void removeLinhasCompletas();

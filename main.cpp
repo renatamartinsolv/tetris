@@ -13,12 +13,24 @@ int main() {
 	game.exibeJogo();
 	game.adicionaForma(0, 2, 'J', 180);
 	game.exibeJogo();
+	game.adicionaForma(0, 2, 'J', 180);
+	game.exibeJogo();
+	game.adicionaForma(0, 5, 'L', 180);
+	game.exibeJogo();
+	game.adicionaForma(4, 5, 'J', 180);
+	game.exibeJogo();
+	game.adicionaForma(3, 0, 'O', 180);
+	game.exibeJogo();
+	game.adicionaForma(0, 2, 'J', 180);
+	game.exibeJogo();
+	game.adicionaForma(0, 2, 'J', 180);
+	game.exibeJogo();
+	game.adicionaForma(0, 2, 'J', 180);
+	game.exibeJogo();
 	game.adicionaForma(4, 2, 'J', 180);
 	game.exibeJogo();
-	cout << "removendo" << endl;
-	game.removeLinhasCompletas();
-	game.exibeJogo();
-	/* game.adicionaForma(2, 1, 'O', 180);
+	
+	game.adicionaForma(2, 1, 'O', 180);
 	game.exibeJogo();
 	game.adicionaForma(10, 10, 'O', 270);
 	game.exibeJogo();
@@ -59,7 +71,10 @@ int main() {
 	game.adicionaForma(36, 15, 'T', 90);
 	game.exibeJogo();
 	game.adicionaForma(30, 10, 'T', 270);
-	game.exibeJogo(); */
+	game.exibeJogo();
+	cout << "removendo " << endl;
+	game.removeLinhasCompletas();
+	game.exibeJogo();
 	game.~Tetris();
 	return 0;
 }
