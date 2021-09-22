@@ -15,7 +15,7 @@ const char Tetris::empty()const{return ' ';}
 
 bool Tetris::isFilled(int c, int l)const{
     return (isSmallerThen(c, this->columns) && 
-            isSmallerThen(l, this->heights[c]));
+            isSmallerThen(l, this->alturas[c]));
 }
 
 //-------------------------------------------------- INICIALIZAÇÃO
@@ -23,36 +23,39 @@ bool Tetris::isFilled(int c, int l)const{
 //Construtor
 Tetris::Tetris(const int size){
     this->columns = size;
-    this->game = new char*[size];
-    this->heights = new int[size];
-    for(int i=0; i<size; i++){
-        this->game[i] = new char[0];
-        this->heights[i] = 0;
+    this->jogo = new char*[size];
+    this->alturas = new int[size];
+
+    int i = 0;
+    while(isSmallerThen(i, size)){
+        this->jogo[i] = new char[0];
+        this->alturas[i] = 0;
+        i++;
     }
 }
 
 //Destrutor
 Tetris::~Tetris(){
-    delete [] this->heights;
+    delete [] this->alturas;
 
     int i = 0;
     while(isSmallerThen(i, this->columns)){
-        delete [] this->game[i];
+        delete [] this->jogo[i];
         i++;
     }
-    delete [] this->game;
+    delete [] this->jogo;
 }
 
 //Construtor de cópias
 Tetris::Tetris(const Tetris &otherTetris){
-    int gameColumns = otherTetris.columns;
-    this->game = new char*[gameColumns];
-    this->heights = new int[gameColumns];
-    this->columns = gameColumns;
+    int newWidth = otherTetris.columns;
+    this->jogo = new char*[newWidth];
+    this->alturas = new int[newWidth];
+    this->columns = newWidth;
     int i = 0;
-    while(isSmallerThen(i, gameColumns)){
-        this->game[i] = new char[0];
-        this->heights[i] = 0;
+    while(isSmallerThen(i, newWidth)){
+        this->jogo[i] = new char[0];
+        this->alturas[i] = 0;
         i++;
     }
     *this = otherTetris;
@@ -60,53 +63,33 @@ Tetris::Tetris(const Tetris &otherTetris){
 
 //Operador de Atribuição
 Tetris &Tetris::operator=(const Tetris &otherTetris){
-    /* if(this == &otherTetris) return *this;
-    int i = 0;
-    delete [] heights;
-    while(isSmallerThen(i, this->columns)){
-        delete [] this->game[i];
-        i++;
-    }
-    delete [] this->game;
 
-    int gameColumns = otherTetris.columns;
-
-    this->columns = gameColumns;
-    this->game = new char*[gameColumns];
-    this->heights = new int[gameColumns];
-
-    i = 0;
-    while(isSmallerThen(i, gameColumns)){
-        int newHeight = otherTetris.heights[i];
-        this->game[i] = new char[newHeight];
-        for(int j = 0; j < newHeight; j++){
-            this->game[i][j] = otherTetris.game[i][j];
-        }
-        this->heights[i] = newHeight;
-        i++;
-    }
-
-    return *this; */
     if(this==&otherTetris) return *this;
     
-    for(int i=0; i < columns; i++){
-        delete [] game[i];
+    int i = 0;
+    delete [] alturas;
+    while(isSmallerThen(i, this->columns)){
+        delete [] this->jogo[i];
+        i++;
     }
-    delete [] game;
-    delete [] heights;
+    delete [] jogo;
 
-    this->columns = otherTetris.columns;
-    this->heights = new int [otherTetris.columns];
-    this->game = new char *[otherTetris.columns];
+    int newWidth = otherTetris.columns;
+    this->columns = newWidth;
+    this->alturas = new int [newWidth];
+    this->jogo = new char *[newWidth];
 
-    for(int i = 0; i < otherTetris.columns; i++) {
-        heights[i] = otherTetris.heights[i];
-        game[i] = new char[otherTetris.heights[i]];
-        for(int j = 0; j < otherTetris.heights[i]; j++){
-            game[i][j] = otherTetris.game[i][j];
+    while(isSmallerThen(i, newWidth)){
+        int newHeight = otherTetris.alturas[i];
+        this->jogo[i] = new char[newHeight];
+        int j = 0;
+        while(isSmallerThen(j, newHeight)){
+            this->jogo[i][j] = otherTetris.jogo[i][j];
+            j++;
         }
-    } 
-
+        this->alturas[i] = newHeight;
+        i++;
+    }
     return *this;
 }
 
@@ -116,9 +99,9 @@ Tetris &Tetris::operator=(const Tetris &otherTetris){
 char Tetris::get(const int c, const int l)const{
 
     if (isSmallerThen(c, this->columns) && 
-        isSmallerThen(l, this->heights[c])){
+        isSmallerThen(l, this->alturas[c])){
 
-        return this->game[c][l];
+        return this->jogo[c][l];
 
     } else {
 
@@ -130,54 +113,124 @@ char Tetris::get(const int c, const int l)const{
 int Tetris::getNumColunas()const{return this->columns;}
 
 //Retorna a altura da coluna C
-int Tetris::getAltura(int c)const{return this->heights[c];}
+int Tetris::getAltura(int c)const{return this->alturas[c];}
 
 //Retorna a altura máxima do jogo
 int Tetris::getAltura()const{
     int i = 0;
-    int maxHeigth = 0;
+    int maxHeight = 0;
     while(isSmallerThen(i, this->columns)){
-        if (heights[i] > maxHeigth) maxHeigth = i;
+        if (alturas[i] > maxHeight) maxHeight = i;
         i++;
     }
-    return maxHeigth;
+    return maxHeight;
+}
+
+//Retorna a altura mínima do jogo
+int Tetris::getMinHeight()const{
+    int i = 0;
+    int minHeight = getAltura();
+    while(isSmallerThen(i, this->columns)){
+        if (alturas[i] < minHeight) minHeight = i;
+        i++;
+    }
+    return minHeight;
 }
 
 //-------------------------------------------------- SETS
 
 void Tetris::set(int c, int l, char value){
-    int oldHeight = heights[c];
+    int oldHeight = alturas[c];
     int newHeight = l+1;
     if (isFilled(c, l)){
-        this->game[c][l] = value;
+        this->jogo[c][l] = value;
         return;
     } 
     char * newColumn = new char [newHeight];
     int i = 0;
     while (isSmallerThen(i, newHeight)){
         if (areEquals(i, l)) newColumn[i] = value;
-        else if (isSmallerThen(i, oldHeight)) newColumn[i] = this->game[c][i];
+        else if (isSmallerThen(i, oldHeight)) newColumn[i] = this->jogo[c][i];
         else newColumn[i] = empty();
         i++;
     }
-    delete [] this->game[c];
-    this->game[c] = new char [newHeight];
+    delete [] this->jogo[c];
+    this->jogo[c] = new char [newHeight];
     i = 0;
     while (isSmallerThen(i, newHeight)){
-        this->game[c][i] = newColumn[i];
+        this->jogo[c][i] = newColumn[i];
         i++;
     }
-    heights[c] = newHeight;
+    alturas[c] = newHeight;
     delete [] newColumn;
 
 }
 
 //-------------------------------------------------- REMOVES
 void Tetris::removeColuna(int c){
+    
+    if(isSmallerThen(c, 0) || 
+       isBiggerThen(c, this->columns) || 
+       areEquals(c, this->columns)) 
+            return;
+
+    int oldWidth = this->columns;
+    int newWidth = oldWidth-1;
+
+    int i = c;
+    //Todas as colunas seguintes à c devem ser modificadas
+    while (isSmallerThen(i, newWidth)){
+    
+        int newHeight = alturas[i+1];
+        int oldHeight = alturas[i];
+        char * newColumn = new char [newHeight];
+
+        int j = 0;
+        while (isSmallerThen(j, newHeight)){
+            newColumn[j] = this->jogo[i+1][j];
+            j++;
+        }
+
+        delete [] this->jogo[i];
+        this->jogo[i] = new char [newHeight];
+
+        j = 0;
+        while (isSmallerThen(j, newHeight)){
+            this->jogo[i][j] = newColumn[j];
+            j++;
+        }
+        delete [] newColumn;
+        i++;
+    }
+    delete [] jogo[newWidth];
+
+    //Realocação do vetor de alturas
+    int * newHeights = new int [newWidth];
+
+    int j = 0;
+    while (isSmallerThen(j, newWidth)){
+        if (isSmallerThen(j, c)) newHeights[j] = this->alturas[j];
+        else newHeights[j] = this->alturas[j+1];
+        j++;
+    }
+
+    delete [] this->alturas;
+    this->alturas = new int [newWidth];
+
+    j = 0;
+    while (isSmallerThen(j, newWidth)){
+        this->alturas[j] = newHeights[j];
+        j++;
+    }
+    delete [] newHeights;
+
+    //Atualização da largura do jogo
+    this->columns = newWidth;
 
 }
 
 void Tetris::removeLinhasCompletas(){
+
 
 }
 
