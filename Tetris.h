@@ -1,44 +1,51 @@
-#ifndef TETRIS_H
-#define TETRIS_H
-#include <string>
-
-using namespace std;
+#ifndef TETRIS_H_
+#define TETRIS_H_
 
 class Tetris{
+	public:
+		//Inicialização
+	    Tetris(const int size);
+		Tetris(const Tetris &game);
+	    ~Tetris();
+		Tetris &operator=(const Tetris &game);
+	    
+		//Gets
+		char get(int c, int l)const;
+	    int getNumColunas()const;
+	    int getAltura(int c)const;
+	    int getAltura()const;
+		int getMinHeight()const;
+	    
+		//Adição de peças
+	    bool adicionaForma(int c, int l, char id, int r);
+	    
+		//Remoção 
+		void removeColuna(int c);
+	    void removeLinhasCompletas();
+	
+	private:
+	    int columns;
+	    int *alturas;
+	    char **jogo;
+	    
+		//Adição de peças
+	    bool addI(int c, int l, int r);
+	    bool addJ(int c, int l, int r);
+		bool addL(int c, int l, int r);
+		bool addO(int c, int l, int r);
+		bool addS(int c, int l, int r);
+		bool addT(int c, int l, int r);
+		bool addZ(int c, int l, int r); 
 
-    private:
-
-        int colunas;
-        int *alturas;
-        char **jogo;
-
-        bool addI(int, int, int); 
-        bool addJ(int, int, int);
-        bool addL(int, int, int);
-        bool addO(int, int, int);
-        bool addS(int, int, int);
-        bool addT(int, int, int);
-        bool addZ(int, int, int);
-
-        bool estaPreenchido(int, int);
-
-    public:
-
-        Tetris(const int);
-        ~Tetris();
-
-        char get(int c,int l) const;
-        void set(int c, int l, char valor);
-
-        int getNumColunas() const;
-        int getAltura(int c) const;
-        int getAltura() const;
-
-        void exibeJogo(); 
-
-        bool adicionaForma(int coluna,int linha, char id, int rotacao);
-        void removeColuna(int c);
-        void removeLinhasCompletas();
-
+		//Set
+		void set(int c, int l, char value);
+		
+		//Auxiliares
+		bool isFilled(int c, int l)const;
+		bool isSmallerThen(int a, int b)const;
+		bool isGreaterThen(int a, int b)const;
+		bool areEquals(int a, int b)const;
+		const char empty()const;
 };
+
 #endif
