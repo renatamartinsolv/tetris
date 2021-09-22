@@ -153,7 +153,7 @@
         if (rotacao == 0 || rotacao == 180)
         {
             //verifica se o pixel de referência esta numa altura que permite a adicao da peca
-            if (linha-3 < 0 && coluna >= getNumColunas())
+            if (linha-3 < 0 || coluna >= getNumColunas())
             {
                 return false;
             }
