@@ -60,8 +60,8 @@ int main(){
     game7.removeLinhasCompletas();
     exibeJogo(game7);
 
-cout << "aaaaaaaaa"  << endl;
-
+    Tetris game9 = game7;
+    exibeJogo(game9);
      
     game7.removeColuna(0);
     game7.removeColuna(0);
@@ -70,7 +70,6 @@ cout << "aaaaaaaaa"  << endl;
     game7.removeColuna(0);
     exibeJogo(game7);
 
-cout << "oioi" << endl;
     game7.removeColuna(game7.getNumColunas()-1);
     game7.removeColuna(game7.getNumColunas()-1);
     game7.removeColuna(game7.getNumColunas()-1);

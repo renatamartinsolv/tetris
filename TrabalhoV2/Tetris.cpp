@@ -79,6 +79,7 @@ Tetris &Tetris::operator=(const Tetris &otherTetris){
     this->alturas = new int [newWidth];
     this->jogo = new char *[newWidth];
 
+    i = 0;
     while(isSmallerThen(i, newWidth)){
         int newHeight = otherTetris.alturas[i];
         this->jogo[i] = new char[newHeight];
