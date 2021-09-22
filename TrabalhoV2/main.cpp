@@ -58,6 +58,7 @@ int main(){
     exibeJogo(game7);
 
     game7.removeLinhasCompletas();
+    cout << "removendo" << endl;
     exibeJogo(game7);
 
     Tetris game9 = game7;

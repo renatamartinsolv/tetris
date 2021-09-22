@@ -7,7 +7,7 @@ using namespace std;
 
 bool Tetris::isSmallerThen(int a, int b)const{return a < b;}
 
-bool Tetris::isBiggerThen(int a, int b)const{ return a > b;}
+bool Tetris::isGreaterThen(int a, int b)const{ return a > b;}
 
 bool Tetris::areEquals(int a, int b)const{ return a == b;}
 
@@ -121,7 +121,7 @@ int Tetris::getAltura()const{
     int i = 0;
     int maxHeight = 0;
     while(isSmallerThen(i, this->columns)){
-        if (alturas[i] > maxHeight) maxHeight = i;
+        if (isGreaterThen(alturas[i], maxHeight)) maxHeight = alturas[i];
         i++;
     }
     return maxHeight;
@@ -132,7 +132,7 @@ int Tetris::getMinHeight()const{
     int i = 0;
     int minHeight = getAltura();
     while(isSmallerThen(i, this->columns)){
-        if (alturas[i] < minHeight) minHeight = i;
+        if (isSmallerThen(alturas[i], minHeight)) minHeight = alturas[i];
         i++;
     }
     return minHeight;
@@ -171,7 +171,7 @@ void Tetris::set(int c, int l, char value){
 void Tetris::removeColuna(int c){
     
     if(isSmallerThen(c, 0) || 
-       isBiggerThen(c, this->columns) || 
+       isGreaterThen(c, this->columns) || 
        areEquals(c, this->columns)) 
             return;
 
@@ -231,7 +231,63 @@ void Tetris::removeColuna(int c){
 }
 
 void Tetris::removeLinhasCompletas(){
+    int i = 0;
+    while (isSmallerThen(i, getMinHeight())){
+        
+        //Verificação da completude da linha 
+        int countEmptyElements = 0;
+        int j = 0;
+        while (isSmallerThen(j, this->columns)){
+            if (areEquals(get(j, i), empty())) countEmptyElements++;
+            j++;
+        }
+        if (isGreaterThen(countEmptyElements, 0)) i++;
+        else {
+            
+            //Remoção da linha, caso seja completa
+            j = 0;
+            while (isSmallerThen(j, this->columns)){
+                
+                int newHeight = alturas[j]-1;
+                
+                char * newColumn = new char [newHeight];
 
+                //Busca dos pixels que estarão na nova coluna
+                int k = 0;
+                while (isSmallerThen(k, newHeight)){
+                    if (isSmallerThen(k, i)) newColumn[k] = this->jogo[j][k];
+                    else newColumn[k] = this->jogo[j][k+1];
+                    k++;
+                }
+
+                delete [] this->jogo[j];
+
+                //Retirada dos pixels vazios que ficaram no topo
+                k = newHeight-1;
+                while (isGreaterThen(k, 0) || areEquals(k , 0)){
+                    if (areEquals(newColumn[k], empty())) k--;
+                    else break;
+                }
+
+                newHeight = k+1;
+                this->jogo[j] = new char [newHeight];
+
+                //Preenchimento da nova coluna
+                k = 0;
+                while(isSmallerThen(k, newHeight)){
+                    this->jogo[j][k] = newColumn[k];
+                    k++;
+                }
+
+                alturas[j] = newHeight;
+                delete [] newColumn;
+
+                j++;
+            }
+            i = 0;
+        }
+        //Volta para a menor linha preenchida da matriz
+    }
 
 }
 
@@ -241,7 +297,7 @@ bool Tetris::adicionaForma(int c, int l, char id, int r){
     
     //C e L devem ser valores não negativos existentes nos limites do tabuleiro
     if (isSmallerThen(c, 0) || isSmallerThen(l, 0)) return false;
-    if (isBiggerThen(c, this->columns) || areEquals(c, this->columns)) return false;
+    if (isGreaterThen(c, this->columns) || areEquals(c, this->columns)) return false;
 
     //Cada id identifica uma peça que será chamada
     switch(id){
@@ -273,7 +329,7 @@ bool Tetris::addI(int c, int l, int r){
         areEquals(r, 180)){
         
         if (areEquals(c, this->columns) ||
-            isBiggerThen(c, this->columns) ||
+            isGreaterThen(c, this->columns) ||
             isSmallerThen(l-3, 0))
                 return false;
 
@@ -293,7 +349,7 @@ bool Tetris::addI(int c, int l, int r){
     } else{
 
         if (areEquals(c+3, this->columns) ||
-            isBiggerThen(c+3, this->columns) ||
+            isGreaterThen(c+3, this->columns) ||
             isSmallerThen(l, 0))
                 return false;
 
@@ -323,7 +379,7 @@ bool Tetris::addJ(int c, int l, int r){
             
             //Possibilidade de encaixe no tabuleiro
             if (areEquals(c+3, this->columns) ||
-                isBiggerThen(c+3, this->columns) ||
+                isGreaterThen(c+3, this->columns) ||
                 isSmallerThen(l-1, 0))
                     return false;
 
@@ -346,7 +402,7 @@ bool Tetris::addJ(int c, int l, int r){
 
         case 90:
             if (areEquals(c+1, this->columns) ||
-                isBiggerThen(c+1, this->columns) ||
+                isGreaterThen(c+1, this->columns) ||
                 isSmallerThen(l-3, 0))
                     return false;
 
@@ -369,7 +425,7 @@ bool Tetris::addJ(int c, int l, int r){
             
             //Possibilidade de encaixe no tabuleiro
             if (areEquals(c+3, this->columns) ||
-                isBiggerThen(c+3, this->columns) ||
+                isGreaterThen(c+3, this->columns) ||
                 isSmallerThen(l-1, 0))
                     return false;
 
@@ -392,7 +448,7 @@ bool Tetris::addJ(int c, int l, int r){
 
         case 270:
             if (areEquals(c+1, this->columns) ||
-                isBiggerThen(c+1, this->columns) ||
+                isGreaterThen(c+1, this->columns) ||
                 isSmallerThen(l-3, 0))
                     return false;
 
@@ -423,7 +479,7 @@ bool Tetris::addL(int c, int l, int r){
             
             //Possibilidade de encaixe no tabuleiro
             if (areEquals(c+3, this->columns) ||
-                isBiggerThen(c+3, this->columns) ||
+                isGreaterThen(c+3, this->columns) ||
                 isSmallerThen(l-1, 0))
                     return false;
 
@@ -446,7 +502,7 @@ bool Tetris::addL(int c, int l, int r){
 
         case 90:
             if (areEquals(c+1, this->columns) ||
-                isBiggerThen(c+1, this->columns) ||
+                isGreaterThen(c+1, this->columns) ||
                 isSmallerThen(l-3, 0))
                     return false;
 
@@ -461,7 +517,7 @@ bool Tetris::addL(int c, int l, int r){
             set(c+1, l-1, value);
             set(c+1, l-2, value);
             set(c+1, l-3, value);
-            set(c, l-3, value);     
+            set(c, l, value);     
 
             return true;
 
@@ -469,7 +525,7 @@ bool Tetris::addL(int c, int l, int r){
             
             //Possibilidade de encaixe no tabuleiro
             if (areEquals(c+3, this->columns) ||
-                isBiggerThen(c+3, this->columns) ||
+                isGreaterThen(c+3, this->columns) ||
                 isSmallerThen(l-1, 0))
                     return false;
 
@@ -492,7 +548,7 @@ bool Tetris::addL(int c, int l, int r){
 
         case 270:
             if (areEquals(c+1, this->columns) ||
-                isBiggerThen(c+1, this->columns) ||
+                isGreaterThen(c+1, this->columns) ||
                 isSmallerThen(l-3, 0))
                     return false;
 
@@ -518,20 +574,20 @@ bool Tetris::addO(int c, int l, int r){
     char value = 'O';
         
     if (areEquals(c+1, this->columns) ||
-        isBiggerThen(c+1, this->columns) ||
+        isGreaterThen(c+1, this->columns) ||
         isSmallerThen(l-1, 0))
             return false;
 
     if (get(c, l) != empty() ||
         get(c, l-1) != empty() ||
-        get(c-1, l) != empty() ||
-        get(c-1, l-1) != empty())
+        get(c+1, l) != empty() ||
+        get(c+1, l-1) != empty())
             return false;
 
     set(c, l, value);
     set(c, l-1, value);
-    set(c-1, l, value);
-    set(c-1, l-1, value);
+    set(c+1, l, value);
+    set(c+1, l-1, value);
 
     return true;
 }
@@ -544,7 +600,7 @@ bool Tetris::addS(int c, int l, int r){
         areEquals(r, 180)){
         
         if (areEquals(c+2, this->columns) ||
-            isBiggerThen(c+2, this->columns) ||
+            isGreaterThen(c+2, this->columns) ||
             isSmallerThen(l-1, 0))
                 return false;
 
@@ -564,7 +620,7 @@ bool Tetris::addS(int c, int l, int r){
     } else{
 
         if (areEquals(c+1, this->columns) ||
-            isBiggerThen(c+1, this->columns) ||
+            isGreaterThen(c+1, this->columns) ||
             isSmallerThen(l-2, 0))
                 return false;
 
@@ -593,7 +649,7 @@ bool Tetris::addT(int c, int l, int r){
             
             //Possibilidade de encaixe no tabuleiro
             if (areEquals(c+2, this->columns) ||
-                isBiggerThen(c+2, this->columns) ||
+                isGreaterThen(c+2, this->columns) ||
                 isSmallerThen(l-1, 0))
                     return false;
 
@@ -614,7 +670,7 @@ bool Tetris::addT(int c, int l, int r){
 
         case 90:
             if (areEquals(c+1, this->columns) ||
-                isBiggerThen(c+1, this->columns) ||
+                isGreaterThen(c+1, this->columns) ||
                 isSmallerThen(l-2, 0))
                     return false;
 
@@ -635,7 +691,7 @@ bool Tetris::addT(int c, int l, int r){
             
             //Possibilidade de encaixe no tabuleiro
             if (areEquals(c+2, this->columns) ||
-                isBiggerThen(c+2, this->columns) ||
+                isGreaterThen(c+2, this->columns) ||
                 isSmallerThen(l-1, 0))
                     return false;
 
@@ -656,7 +712,7 @@ bool Tetris::addT(int c, int l, int r){
 
         case 270:
             if (areEquals(c+1, this->columns) ||
-                isBiggerThen(c+1, this->columns) ||
+                isGreaterThen(c+1, this->columns) ||
                 isSmallerThen(l-2, 0))
                     return false;
 
@@ -684,7 +740,7 @@ bool Tetris::addZ(int c, int l, int r){
         areEquals(r, 180)){
         
         if (areEquals(c+2, this->columns) ||
-            isBiggerThen(c+2, this->columns) ||
+            isGreaterThen(c+2, this->columns) ||
             isSmallerThen(l-1, 0))
                 return false;
 
@@ -704,7 +760,7 @@ bool Tetris::addZ(int c, int l, int r){
     } else{
 
         if (areEquals(c+1, this->columns) ||
-            isBiggerThen(c+1, this->columns) ||
+            isGreaterThen(c+1, this->columns) ||
             isSmallerThen(l-2, 0))
                 return false;
 

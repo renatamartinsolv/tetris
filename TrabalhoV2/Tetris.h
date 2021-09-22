@@ -43,7 +43,7 @@ class Tetris{
 		//Auxiliares
 		bool isFilled(int c, int l)const;
 		bool isSmallerThen(int a, int b)const;
-		bool isBiggerThen(int a, int b)const;
+		bool isGreaterThen(int a, int b)const;
 		bool areEquals(int a, int b)const;
 		const char empty()const;
 };
