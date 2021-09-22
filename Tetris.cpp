@@ -1,948 +1,781 @@
-#include <iostream>
 #include "Tetris.h"
+#include <iostream>
 
-    Tetris::Tetris(const int c){
-        colunas = c;
-        alturas = new int[colunas];
+using namespace std;
 
-        //inicializacao do vetor de alturas em 0
-        for (int i = 0; i<colunas; i++){
-            alturas[i] = 0;
-        }
+//-------------------------------------------------- AUXILIARES
 
-        //inicialização do vetor principal
-        jogo = new char*[colunas];
+bool Tetris::isSmallerThen(int a, int b)const{return a < b;}
 
-        //inicialização de cada vetor secundário
-        for (int i = 0; i<colunas; i++)
-            jogo[i] = new char;
+bool Tetris::isGreaterThen(int a, int b)const{ return a > b;}
+
+bool Tetris::areEquals(int a, int b)const{ return a == b;}
+
+const char Tetris::empty()const{return ' ';}
+
+bool Tetris::isFilled(int c, int l)const{
+    return (isSmallerThen(c, this->columns) && 
+            isSmallerThen(l, this->alturas[c]));
+}
+
+//-------------------------------------------------- INICIALIZAÇÃO
+
+//Construtor
+Tetris::Tetris(const int size){
+    this->columns = size;
+    this->jogo = new char*[size];
+    this->alturas = new int[size];
+
+    int i = 0;
+    while(isSmallerThen(i, size)){
+        this->jogo[i] = new char[0];
+        this->alturas[i] = 0;
+        i++;
     }
+}
 
-    Tetris::~Tetris(){
-        for (int i=0; i < colunas; i++)
-            //apaga todos os vetores dentro do vetor principal
-            delete (jogo[i]);
-        //apaga o vetor principal
-        delete (jogo);
+//Destrutor
+Tetris::~Tetris(){
+    delete [] this->alturas;
+
+    int i = 0;
+    while(isSmallerThen(i, this->columns)){
+        delete [] this->jogo[i];
+        i++;
     }
+    delete [] this->jogo;
+}
+
+//Construtor de cópias
+Tetris::Tetris(const Tetris &otherTetris){
+    int newWidth = otherTetris.columns;
+    this->jogo = new char*[newWidth];
+    this->alturas = new int[newWidth];
+    this->columns = newWidth;
+    int i = 0;
+    while(isSmallerThen(i, newWidth)){
+        this->jogo[i] = new char[0];
+        this->alturas[i] = 0;
+        i++;
+    }
+    *this = otherTetris;
+}
+
+//Operador de Atribuição
+Tetris &Tetris::operator=(const Tetris &otherTetris){
+
+    if(this==&otherTetris) return *this;
     
-
-    char Tetris::get(int c,int l) const {
-        //verificacao da existência do pixel no jogo
-        if (l<alturas[c]  && c<colunas) 
-            return jogo[c][l];
-        return ' ';
+    int i = 0;
+    delete [] alturas;
+    while(isSmallerThen(i, this->columns)){
+        delete [] this->jogo[i];
+        i++;
     }
+    delete [] jogo;
 
-    int Tetris::getNumColunas() const {
-        return colunas;
-    }
+    int newWidth = otherTetris.columns;
+    this->columns = newWidth;
+    this->alturas = new int [newWidth];
+    this->jogo = new char *[newWidth];
 
-    int Tetris::getAltura(int c) const {
-        //verificacao da existência da coluna no jogo
-        if (c < colunas)
-            return alturas[c];
-        return 0;
-    }
-
-    int Tetris::getAltura() const{
-        int alturaMaxima = 0;
-
-        //para cada valor de altura, verifica se é maior que a altura máxima encontrada até o momento
-        for (int i = 0; i<colunas; i++){
-            if (alturas[i]>alturaMaxima) 
-                //se for, substitui
-                alturaMaxima = alturas[i];
+    i = 0;
+    while(isSmallerThen(i, newWidth)){
+        int newHeight = otherTetris.alturas[i];
+        this->jogo[i] = new char[newHeight];
+        int j = 0;
+        while(isSmallerThen(j, newHeight)){
+            this->jogo[i][j] = otherTetris.jogo[i][j];
+            j++;
         }
-        return alturaMaxima;
+        this->alturas[i] = newHeight;
+        i++;
     }
+    return *this;
+}
 
+//-------------------------------------------------- GETS
 
+//Retorna conteúdo do pixel especificado
+char Tetris::get(const int c, const int l)const{
 
-    void Tetris::set(int c, int l, char valor){
-        //preenchimento do pixel
-        jogo[c][l] = char(valor);
+    if (isSmallerThen(c, this->columns) && 
+        isSmallerThen(l, this->alturas[c])){
+
+        return this->jogo[c][l];
+
+    } else {
+
+        return empty();
     }
+}
 
+//Retorna quantidade de colunas existentes no jogo
+int Tetris::getNumColunas()const{return this->columns;}
 
-    void Tetris::removeColuna(int c){
-        //passa os dados das colunas seguintes a c para sua antecessora
-        for (int i = c+1; i<colunas; i++){
-            for (int j = 0; j<alturas[i]; j++){
-                jogo[i-1][j] = jogo[i][j];
-            }
-            alturas[i-1] = alturas[i];
+//Retorna a altura da coluna C
+int Tetris::getAltura(int c)const{return this->alturas[c];}
+
+//Retorna a altura máxima do jogo
+int Tetris::getAltura()const{
+    int i = 0;
+    int maxHeight = 0;
+    while(isSmallerThen(i, this->columns)){
+        if (isGreaterThen(alturas[i], maxHeight)) maxHeight = alturas[i];
+        i++;
+    }
+    return maxHeight;
+}
+
+//Retorna a altura mínima do jogo
+int Tetris::getMinHeight()const{
+    int i = 0;
+    int minHeight = getAltura();
+    while(isSmallerThen(i, this->columns)){
+        if (isSmallerThen(alturas[i], minHeight)) minHeight = alturas[i];
+        i++;
+    }
+    return minHeight;
+}
+
+//-------------------------------------------------- SETS
+
+void Tetris::set(int c, int l, char value){
+    int oldHeight = alturas[c];
+    int newHeight = l+1;
+    if (isFilled(c, l)){
+        this->jogo[c][l] = value;
+        return;
+    } 
+    char * newColumn = new char [newHeight];
+    int i = 0;
+    while (isSmallerThen(i, newHeight)){
+        if (areEquals(i, l)) newColumn[i] = value;
+        else if (isSmallerThen(i, oldHeight)) newColumn[i] = this->jogo[c][i];
+        else newColumn[i] = empty();
+        i++;
+    }
+    delete [] this->jogo[c];
+    this->jogo[c] = new char [newHeight];
+    i = 0;
+    while (isSmallerThen(i, newHeight)){
+        this->jogo[c][i] = newColumn[i];
+        i++;
+    }
+    alturas[c] = newHeight;
+    delete [] newColumn;
+
+}
+
+//-------------------------------------------------- REMOVES
+void Tetris::removeColuna(int c){
+    
+    if(isSmallerThen(c, 0) || 
+       isGreaterThen(c, this->columns) || 
+       areEquals(c, this->columns)) 
+            return;
+
+    int oldWidth = this->columns;
+    int newWidth = oldWidth-1;
+
+    int i = c;
+    //Todas as colunas seguintes à c devem ser modificadas
+    while (isSmallerThen(i, newWidth)){
+    
+        int newHeight = alturas[i+1];
+        int oldHeight = alturas[i];
+        char * newColumn = new char [newHeight];
+
+        int j = 0;
+        while (isSmallerThen(j, newHeight)){
+            newColumn[j] = this->jogo[i+1][j];
+            j++;
         }
-        //apaga a última coluna da matriz
-        colunas--;
-        delete jogo[colunas];
-        alturas[colunas] = 0;
-    }
 
-    void Tetris::removeLinhasCompletas(){
-        int alturaMaxima = getAltura();
-        int linhaParaRemocao;
-        int estaCompleta = true;
-        for (int linhaAuxiliar = 0; linhaAuxiliar < alturaMaxima; linhaAuxiliar++){
-            cout << linhaAuxiliar << " linha sendo analisada" << endl;
-            estaCompleta = true;
-            for (int x = 0; x<colunas; x++){
-                if (get(x, linhaAuxiliar) == ' '){
-                    estaCompleta = false;
-                    break;
-                }
-            }
-            if(estaCompleta){
-                cout << "a linha " << linhaAuxiliar << " ta completa" << endl;
-                linhaParaRemocao = linhaAuxiliar;
-                for (int i = 0; i < colunas; i++){
-                    cout << "substituindo coluna " << i << endl;
-                    char *colunaAuxiliar = jogo[i];
-                    jogo[i]  = new char[alturas[i]-1];
-                    int k = 0;
-                    for (int j = 0; j<alturas[i]; j++){
-                        if (j != linhaParaRemocao){
-                            set(i, k, colunaAuxiliar[j]);
-                            k++;
-                        }
-                    }
-                    alturas[i] = k;
-                    delete[] colunaAuxiliar;
-                }
-            }
+        delete [] this->jogo[i];
+        this->jogo[i] = new char [newHeight];
+
+        j = 0;
+        while (isSmallerThen(j, newHeight)){
+            this->jogo[i][j] = newColumn[j];
+            j++;
         }
+        delete [] newColumn;
+        i++;
+    }
+    delete [] jogo[newWidth];
 
+    //Realocação do vetor de alturas
+    int * newHeights = new int [newWidth];
+
+    int j = 0;
+    while (isSmallerThen(j, newWidth)){
+        if (isSmallerThen(j, c)) newHeights[j] = this->alturas[j];
+        else newHeights[j] = this->alturas[j+1];
+        j++;
     }
 
+    delete [] this->alturas;
+    this->alturas = new int [newWidth];
 
-    bool Tetris::estaPreenchido(int c,int l){
-        //verificacao da existência do pixel no jogo
-        return (l<alturas[c] && c<colunas);
+    j = 0;
+    while (isSmallerThen(j, newWidth)){
+        this->alturas[j] = newHeights[j];
+        j++;
     }
+    delete [] newHeights;
 
+    //Atualização da largura do jogo
+    this->columns = newWidth;
 
-    bool Tetris::adicionaForma(int coluna, int linha, char id, int rotacao){
+}
+
+void Tetris::removeLinhasCompletas(){
+    int i = 0;
+    while (isSmallerThen(i, getMinHeight())){
         
-        //verifica se a coluna do pixel de referência existe no tabuleiro
-        if (coluna > colunas-1) {
-            return false;
+        //Verificação da completude da linha 
+        int countEmptyElements = 0;
+        int j = 0;
+        while (isSmallerThen(j, this->columns)){
+            if (areEquals(get(j, i), empty())) countEmptyElements++;
+            j++;
         }
+        if (isGreaterThen(countEmptyElements, 0)) i++;
+        else {
+            
+            //Remoção da linha, caso seja completa
+            j = 0;
+            while (isSmallerThen(j, this->columns)){
+                
+                int newHeight = alturas[j]-1;
+                
+                char * newColumn = new char [newHeight];
 
-        //delega conforme a peça
-        switch(id){
-            case 'I':
-                return addI(coluna, linha, rotacao);
-            case 'J':
-                return addJ(coluna, linha, rotacao);
-            case 'L':
-                return addL(coluna, linha, rotacao);
-            case 'O':
-                return addO(coluna, linha, rotacao);
-            case 'S':
-                return addS(coluna, linha, rotacao);
-            case 'T':
-                return addT(coluna, linha, rotacao);
-            case 'Z':
-                return addZ(coluna, linha, rotacao);
+                //Busca dos pixels que estarão na nova coluna
+                int k = 0;
+                while (isSmallerThen(k, newHeight)){
+                    if (isSmallerThen(k, i)) newColumn[k] = this->jogo[j][k];
+                    else newColumn[k] = this->jogo[j][k+1];
+                    k++;
+                }
+
+                delete [] this->jogo[j];
+
+                //Retirada dos pixels vazios que ficaram no topo
+                k = newHeight-1;
+                while (isGreaterThen(k, 0) || areEquals(k , 0)){
+                    if (areEquals(newColumn[k], empty())) k--;
+                    else break;
+                }
+
+                newHeight = k+1;
+                this->jogo[j] = new char [newHeight];
+
+                //Preenchimento da nova coluna
+                k = 0;
+                while(isSmallerThen(k, newHeight)){
+                    this->jogo[j][k] = newColumn[k];
+                    k++;
+                }
+
+                alturas[j] = newHeight;
+                delete [] newColumn;
+
+                j++;
+            }
+            i = 0;
         }
-        return false;
+        //Volta para a menor linha preenchida da matriz
     }
 
-    bool Tetris::addI(int coluna, int linha, int rotacao)
-    {
-        if (rotacao == 0 || rotacao == 180)
-        {
-            //verifica se o pixel de referência esta numa altura que permite a adicao da peca
-            if (linha-3 < 0 && coluna >= getNumColunas())
-            {
+}
+
+//-------------------------------------------------- ADIÇÕES
+
+bool Tetris::adicionaForma(int c, int l, char id, int r){
+    
+    //C e L devem ser valores não negativos existentes nos limites do tabuleiro
+    if (isSmallerThen(c, 0) || isSmallerThen(l, 0)) return false;
+    if (isGreaterThen(c, this->columns) || areEquals(c, this->columns)) return false;
+
+    //Cada id identifica uma peça que será chamada
+    switch(id){
+        case 'I':
+            return addI(c, l, r);
+         case 'J':
+            return addJ(c, l, r);
+        case 'L':
+            return addL(c, l, r);
+        case 'O':
+            return addO(c, l, r);
+        case 'S':
+            return addS(c, l, r);
+        case 'T':
+            return addT(c, l, r);
+        case 'Z':
+            return addZ(c, l, r); 
+        default:
+            return false;
+    }
+    return false;
+}
+
+bool Tetris::addI(int c, int l, int r){
+
+    char value = 'I';
+    
+    if (areEquals(r, 0) || 
+        areEquals(r, 180)){
+        
+        if (areEquals(c, this->columns) ||
+            isGreaterThen(c, this->columns) ||
+            isSmallerThen(l-3, 0))
+                return false;
+
+        if (get(c, l) != empty() ||
+            get(c, l-1) != empty() ||
+            get(c, l-2) != empty() ||
+            get(c, l-3) != empty())
+                return false;
+
+        set(c, l, value);
+        set(c, l-1, value);
+        set(c, l-2, value);
+        set(c, l-3, value);
+
+        return true;
+
+    } else{
+
+        if (areEquals(c+3, this->columns) ||
+            isGreaterThen(c+3, this->columns) ||
+            isSmallerThen(l, 0))
+                return false;
+
+        if (get(c, l) != empty() ||
+            get(c+1, l) != empty() ||
+            get(c+2, l) != empty() ||
+            get(c+3, l) != empty()){
                 return false;
             }
 
-            //verifica se os espacos que serao utilizados estao vazios
-            if (get(coluna, linha) == ' ' 
-                && get(coluna, linha-1) == ' ' 
-                && get(coluna, linha-2) == ' ' 
-                && get(coluna, linha-3) == ' ')
-            {                
+        set(c, l, value);
+        set(c+1, l, value);
+        set(c+2, l, value);
+        set(c+3, l, value);     
 
-                //acrescenta a peca
-                for (int i = 0; i<4; i++){
-                    set(coluna, linha-i, 'I');
-                }
+        return true;
+    }
+    return false;
+}
 
-                //preenche os espacos abaixo da peca 
-                for (int i = 0; i<linha-3; i++){
-                    if (!estaPreenchido(coluna, i))
-                        set(coluna, i, ' ');
-                }
-                
-                //atualiza a altura da coluna 
-                if (alturas[coluna] <= linha)
-                {
-                    alturas[coluna] = linha+1;
-                }
+bool Tetris::addJ(int c, int l, int r){
 
-            } else{
-                return false;
-            } 
+    char value = 'J';
+
+    switch (r){
+        case 0:
+            
+            //Possibilidade de encaixe no tabuleiro
+            if (areEquals(c+3, this->columns) ||
+                isGreaterThen(c+3, this->columns) ||
+                isSmallerThen(l-1, 0))
+                    return false;
+
+            //Disponibilidade dos pixels 
+            if (get(c, l) != empty() ||
+                get(c+1, l) != empty() ||
+                get(c+2, l) != empty() ||
+                get(c+3, l) != empty() ||
+                get(c+3, l-1) != empty())
+                    return false;
+
+            //Adição da peça
+            set(c, l, value);
+            set(c+1, l, value);
+            set(c+2, l, value);
+            set(c+3, l, value);
+            set(c+3, l-1, value);
 
             return true;
 
-        }else
-        {
+        case 90:
+            if (areEquals(c+1, this->columns) ||
+                isGreaterThen(c+1, this->columns) ||
+                isSmallerThen(l-3, 0))
+                    return false;
 
-            //verifica se o pixel de referência esta numa largura que permite a adicao da peca
-            if (coluna + 3 >= getNumColunas() || linha < 0)
-                return false;
+            if (get(c+1, l) != empty() ||
+                get(c+1, l-1) != empty() ||
+                get(c+1, l-2) != empty() ||
+                get(c+1, l-3) != empty() ||
+                get(c, l-3) != empty())
+                    return false;
 
-            //verifica se os espacos que serao utilizados estao vazios
-            if(get(coluna, linha) == ' ' 
-                && get(coluna+1, linha) == ' ' 
-                && get(coluna+2, linha) == ' ' 
-                && get(coluna+3, linha) == ' ')
-            {
+            set(c+1, l, value);
+            set(c+1, l-1, value);
+            set(c+1, l-2, value);
+            set(c+1, l-3, value);
+            set(c, l-3, value);     
 
-                
-                //acrescenta a peca
-                for (int i = 0; i<4; i++){
-                    set(coluna+i, linha, 'I');
-                }   
+            return true;
 
-                //preenchimento dos espacos abaixo da peca 
-                for (int i = coluna; i<coluna+4; i++){
-                    for (int j = 0; j<linha; j++){
-                        if (!estaPreenchido(i, j)) 
-                            set(i, j, ' ');
-                    }
-                }
+        case 180:
+            
+            //Possibilidade de encaixe no tabuleiro
+            if (areEquals(c+3, this->columns) ||
+                isGreaterThen(c+3, this->columns) ||
+                isSmallerThen(l-1, 0))
+                    return false;
 
-                //atualizacao da altura da coluna 
-                for (int i = coluna; i<coluna+4; i++){
-                    if (alturas[i] <= linha){
-                        alturas[i] = linha+1;
-                    }
-                }
+            //Disponibilidade dos pixels 
+            if (get(c, l) != empty() ||
+                get(c, l-1) != empty() ||
+                get(c+1, l-1) != empty() ||
+                get(c+2, l-1) != empty() ||
+                get(c+3, l-1) != empty())
+                    return false;
 
-            } else
-            {
-                return false;
-            }
-        }
-        return true;
+            //Adição da peça
+            set(c, l, value);
+            set(c, l-1, value);
+            set(c+1, l-1, value);
+            set(c+2, l-1, value);
+            set(c+3, l-1, value);
+
+            return true;
+
+        case 270:
+            if (areEquals(c+1, this->columns) ||
+                isGreaterThen(c+1, this->columns) ||
+                isSmallerThen(l-3, 0))
+                    return false;
+
+            if (get(c, l) != empty() ||
+                get(c+1, l) != empty() ||
+                get(c, l-1) != empty() ||
+                get(c, l-2) != empty() ||
+                get(c, l-3) != empty())
+                    return false;
+
+            set(c, l, value);     
+            set(c+1, l, value);
+            set(c, l-1, value);
+            set(c, l-2, value);
+            set(c, l-3, value);
+
+            return true;
     }
+    return false;
+}
 
-    bool Tetris::addJ(int coluna, int linha, int rotacao){
+bool Tetris::addL(int c, int l, int r){
+    
+    char value = 'L';
 
-        switch (rotacao){
-            case 0:
-                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-                if (linha - 1 < 0 || coluna + 3 >= getNumColunas()) 
+    switch (r){
+        case 0:
+            
+            //Possibilidade de encaixe no tabuleiro
+            if (areEquals(c+3, this->columns) ||
+                isGreaterThen(c+3, this->columns) ||
+                isSmallerThen(l-1, 0))
                     return false;
 
-                //verifica se os espacos que serao utilizados estao vazios
-                if (get(coluna, linha) == ' '
-                    && get(coluna+1, linha) == ' '
-                    && get(coluna+2, linha) == ' '
-                    && get(coluna+3, linha) == ' '
-                    && get(coluna+3, linha-1) == ' ')
-                {
-                    //acrescenta a peca
-                    set(coluna, linha, 'J');
-                    set(coluna+1, linha, 'J');
-                    set(coluna+2, linha, 'J');
-                    set(coluna+3, linha, 'J');
-                    set(coluna+3, linha-1, 'J');
-
-                    //preenche os espacos abaixo da peca 
-                    for (int i = 0; i<3; i++){
-                        for (int j = 0; j<linha; j++){
-                            if (!estaPreenchido(coluna+i, j))
-                                set(coluna+i, j, ' ');
-                        }
-                    }
-                    for (int j = 0; j<linha-1; j++){
-                        if (!estaPreenchido(coluna+3, j))
-                            set(coluna+3, j, ' ');
-                    }
-
-                    //atualiza a altura da coluna
-                    for (int i = 0; i<4; i++){
-                        if (alturas[coluna+i] <= linha)
-                            alturas[coluna+i] = linha+1;
-                    } 
-
-                } else 
+            //Disponibilidade dos pixels 
+            if (get(c, l) != empty() ||
+                get(c+1, l) != empty() ||
+                get(c+2, l) != empty() ||
+                get(c+3, l) != empty() ||
+                get(c, l-1) != empty())
                     return false;
 
-                return true;
+            //Adição da peça
+            set(c, l, value);
+            set(c+1, l, value);
+            set(c+2, l, value);
+            set(c+3, l, value);
+            set(c, l-1, value);
 
-            case 90:
-                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-                if (linha - 3 < 0 || coluna + 1 >= getNumColunas()) 
+            return true;
+
+        case 90:
+            if (areEquals(c+1, this->columns) ||
+                isGreaterThen(c+1, this->columns) ||
+                isSmallerThen(l-3, 0))
                     return false;
 
-                //verifica se os espacos que serao utilizados estao vazios
-                if (get(coluna+1, linha) == ' '
-                    && get(coluna+1, linha-1) == ' '
-                    && get(coluna+1, linha-2) == ' '
-                    && get(coluna+1, linha-3) == ' '
-                    && get(coluna, linha-3) == ' ')
-                {
-                    //acrescenta a peca
-                    set(coluna+1, linha, 'J');
-                    set(coluna+1, linha-1, 'J');
-                    set(coluna+1, linha-2, 'J');
-                    set(coluna+1, linha-3, 'J');
-                    set(coluna, linha-3, 'J');
-
-                    //preenche os espacos abaixo da peca 
-                    for (int i = 0; i<linha-3; i++){
-                        if (!estaPreenchido(coluna, i))
-                            set(coluna, i, ' ');
-                        if (!estaPreenchido(coluna+1, i))
-                            set(coluna+1, i, ' ');
-                    }
-
-                    //atualiza a altura da coluna
-                    if (alturas[coluna] <= linha-3) 
-                        alturas[coluna] = linha-2;
-                    if (alturas[coluna+1] < linha) 
-                        alturas[coluna+1] = linha+1;
-
-                } else 
+            if (get(c+1, l) != empty() ||
+                get(c+1, l-1) != empty() ||
+                get(c+1, l-2) != empty() ||
+                get(c+1, l-3) != empty() ||
+                get(c, l) != empty())
                     return false;
 
-                return true;
-            case 180:
+            set(c+1, l, value);
+            set(c+1, l-1, value);
+            set(c+1, l-2, value);
+            set(c+1, l-3, value);
+            set(c, l, value);     
 
-                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-                if (linha - 1 < 0 || coluna + 3 >= getNumColunas()) 
+            return true;
+
+        case 180:
+            
+            //Possibilidade de encaixe no tabuleiro
+            if (areEquals(c+3, this->columns) ||
+                isGreaterThen(c+3, this->columns) ||
+                isSmallerThen(l-1, 0))
                     return false;
 
-                //verifica se os espacos que serao utilizados estao vazios
-                if (get(coluna, linha) == ' '
-                    && get(coluna, linha-1) == ' '
-                    && get(coluna+1, linha-1) == ' '
-                    && get(coluna+2, linha-1) == ' '
-                    && get(coluna+3, linha-1) == ' ')
-                {
-                    //acrescenta a peca
-                    set(coluna, linha, 'J');
-                    set(coluna, linha-1, 'J');
-                    set(coluna+1, linha-1, 'J');
-                    set(coluna+2, linha-1, 'J');
-                    set(coluna+3, linha-1, 'J');
-
-                    //preenche os espacos abaixo da peca 
-                    for (int i = 0; i<4; i++){
-                        for (int j = 0; j<linha-1; j++){
-                            if (!estaPreenchido(coluna+i, j))
-                                set(coluna+i, j, ' ');
-                        }
-                    }
-
-                    //atualiza a altura da coluna
-                    for (int i = 1; i<4; i++){
-                        if (alturas[coluna+i] <= linha-1)
-                            alturas[coluna+i] = linha;
-                    } 
-                     if (alturas[coluna] <= linha)
-                            alturas[coluna] = linha+1;
-
-                } else 
+            //Disponibilidade dos pixels 
+            if (get(c+3, l) != empty() ||
+                get(c, l-1) != empty() ||
+                get(c+1, l-1) != empty() ||
+                get(c+2, l-1) != empty() ||
+                get(c+3, l-1) != empty())
                     return false;
 
-                return true;
-            case 270:
-                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-                if (linha - 3 < 0 || coluna + 1 >= getNumColunas()) 
+            //Adição da peça
+            set(c+3, l, value);
+            set(c, l-1, value);
+            set(c+1, l-1, value);
+            set(c+2, l-1, value);
+            set(c+3, l-1, value);
+
+            return true;
+
+        case 270:
+            if (areEquals(c+1, this->columns) ||
+                isGreaterThen(c+1, this->columns) ||
+                isSmallerThen(l-3, 0))
                     return false;
 
-                //verifica se os espacos que serao utilizados estao vazios
-                if (get(coluna, linha) == ' '
-                    && get(coluna, linha-1) == ' '
-                    && get(coluna, linha-2) == ' '
-                    && get(coluna, linha-3) == ' '
-                    && get(coluna+1, linha) == ' ')
-                {
-                    //acrescenta a peca
-                    set(coluna, linha, 'J');
-                    set(coluna, linha-1, 'J');
-                    set(coluna, linha-2, 'J');
-                    set(coluna, linha-3, 'J');
-                    set(coluna+1, linha, 'J');
-
-                    //preenche os espacos abaixo da peca 
-                    for (int i = 0; i<linha-3; i++){
-                        if (!estaPreenchido(coluna, i))
-                            set(coluna, i, ' ');
-                        
-                    }
-                    for (int i = 0; i<linha; i++){
-                       if (!estaPreenchido(coluna+1, i))
-                            set(coluna+1, i, ' ');   
-                    }
-
-                    //atualiza a altura da coluna
-                    for (int i = 0; i<2; i++){
-                       if (alturas[coluna+i] <= linha) 
-                            alturas[coluna+i] = linha+1;
-                    }
-
-                } else 
+            if (get(c, l) != empty() ||
+                get(c, l-1) != empty() ||
+                get(c, l-2) != empty() ||
+                get(c, l-3) != empty() ||
+                get(c+1, l-3) != empty())
                     return false;
 
-                return true;
+            set(c, l, value);     
+            set(c, l-1, value);
+            set(c, l-2, value);
+            set(c, l-3, value);
+            set(c+1, l-3, value);
 
-            default:
-                return false;
-        }
+            return true;
     }
+    return false;
+}
 
-    bool Tetris::addL(int coluna, int linha, int rotacao){
-        switch (rotacao){
-            case 0:
-                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-                if (linha - 1 < 0 || coluna + 3 >= getNumColunas()) 
-                    return false;
-
-                //verifica se os espacos que serao utilizados estao vazios
-                if (get(coluna, linha) == ' '
-                    && get(coluna, linha-1) == ' '
-                    && get(coluna+1, linha) == ' '
-                    && get(coluna+2, linha) == ' '
-                    && get(coluna+3, linha) == ' ')
-                {
-                    //acrescenta a peca
-                    set(coluna, linha, 'L');
-                    set(coluna, linha-1, 'L');
-                    set(coluna+1, linha, 'L');
-                    set(coluna+2, linha, 'L');
-                    set(coluna+3, linha, 'L');
-
-                    //preenche os espacos abaixo da peca 
-                    for (int i = 1; i<4; i++){
-                        for (int j = 0; j<linha; j++){
-                            if(!estaPreenchido(coluna+i, j))
-                                set(coluna+i, j, ' ');
-                        }
-                    }
-                    for (int j = 0; j<linha-1; j++){
-                        if(!estaPreenchido(coluna, j))
-                            set(coluna, j, ' ');
-                    }
-
-                    //atualiza a altura da coluna
-                    for (int i = 0; i<4; i++){
-                        if (alturas[coluna+i] <= linha)
-                            alturas[coluna+i] = linha+1;
-                    } 
-
-                } else 
-                    return false;    
-                
-                return true;
-            case 90:
-                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-                if (linha - 3 < 0 || coluna + 1 >= getNumColunas()) 
-                    return false;
-
-                //verifica se os espacos que serao utilizados estao vazios
-                if (get(coluna, linha) == ' '
-                    && get(coluna+1, linha) == ' '
-                    && get(coluna+1, linha-1) == ' '
-                    && get(coluna+1, linha-2) == ' '
-                    && get(coluna+1, linha-3) == ' ')
-                {
-                    //acrescenta a peca
-                    set(coluna, linha, 'L');
-                    set(coluna+1, linha, 'L');
-                    set(coluna+1, linha-1, 'L');
-                    set(coluna+1, linha-2, 'L');
-                    set(coluna+1, linha-3, 'L');
-
-                    //preenche os espacos abaixo da peca 
-                    for (int i = 0; i<linha-3; i++){
-                        if (!estaPreenchido(coluna+1, i))
-                            set(coluna+1, i, ' ');
-                    }
-                    for (int i = 0; i<linha; i++){
-                        if (!estaPreenchido(coluna, i))
-                            set(coluna, i, ' ');
-
-                    }
-
-                    //atualiza a altura da coluna
-                    for (int i = 0; i<2; i++){
-                        if (alturas[coluna+i] <= linha) 
-                            alturas[coluna+i] = linha+1;
-                    }
-                } else 
-                    return false;
-
-                return true;
-            case 180:
-                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-                if (linha - 1 < 0 || coluna + 3 >= getNumColunas()) 
-                    return false;
-
-                //verifica se os espacos que serao utilizados estao vazios
-                if (get(coluna+3, linha) == ' '
-                    && get(coluna, linha-1) == ' '
-                    && get(coluna+1, linha-1) == ' '
-                    && get(coluna+2, linha-1) == ' '
-                    && get(coluna+3, linha-1) == ' ')
-                {
-                    //acrescenta a peca
-                    set(coluna, linha-1, 'L');
-                    set(coluna+1, linha-1, 'L');
-                    set(coluna+2, linha-1, 'L');
-                    set(coluna+3, linha-1, 'L');
-                    set(coluna+3, linha, 'L');
-
-                    //preenche os espacos abaixo da peca 
-                    for (int i = 0; i<4; i++){
-                        for (int j = 0; j<linha-1; j++){
-                            if (!estaPreenchido(coluna+i, j))
-                                set(coluna+i, j, ' ');
-                        }
-                    }
-
-                    //atualiza a altura da coluna
-                    for (int i = 0; i<3; i++){
-                        if (alturas[coluna+i] <= linha-1)
-                            alturas[coluna+i] = linha;
-                    } 
-                     if (alturas[coluna+3] <= linha)
-                            alturas[coluna+3] = linha+1;
-
-                } else 
-                    return false;
-
-                return true;
-            case 270:
-                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-                if (linha - 3 < 0 || coluna + 1 >= getNumColunas()) 
-                    return false;
-
-                //verifica se os espacos que serao utilizados estao vazios
-                if (get(coluna, linha) == ' '
-                    && get(coluna, linha-1) == ' '
-                    && get(coluna, linha-2) == ' '
-                    && get(coluna, linha-3) == ' '
-                    && get(coluna+1, linha-3) == ' ')
-                {
-                    //acrescenta a peca
-                    set(coluna, linha, 'L');
-                    set(coluna, linha-1, 'L');
-                    set(coluna, linha-2, 'L');
-                    set(coluna, linha-3, 'L');
-                    set(coluna+1, linha-3, 'L');
-
-                    //preenche os espacos abaixo da peca 
-                    for (int i = 0; i<linha-3; i++){
-                        if (!estaPreenchido(coluna, i))
-                            set(coluna, i, ' ');
-                        if (!estaPreenchido(coluna+1, i))
-                            set(coluna+1, i, ' ');    
-                        
-                    }
-
-                    //atualiza a altura da coluna
-                    if (alturas[coluna] <= linha) 
-                        alturas[coluna] = linha+1;
-                    if (alturas[coluna+1] <= linha-3) 
-                        alturas[coluna+1] = linha-2;
-
-                } else 
-                    return false;
-
-        }
-        return true;
-    }
-
-    bool Tetris::addO(int coluna, int linha, int rotacao){
-
-        //verifica se o pixel de referência esta numa altura/largura que permite a adicao da peca
-        if (linha - 1 < 0 && coluna + 1 >= getNumColunas()) 
+bool Tetris::addO(int c, int l, int r){
+    char value = 'O';
+        
+    if (areEquals(c+1, this->columns) ||
+        isGreaterThen(c+1, this->columns) ||
+        isSmallerThen(l-1, 0))
             return false;
 
-        //verifica se os espacos que serao utilizados estao vazios
-        if (get(coluna, linha) == ' '
-            && get(coluna+1, linha) == ' '
-            && get(coluna, linha-1) == ' '
-            && get(coluna+1, linha-1) == ' ')
-        {
-            //acrescenta a peca
-            set(coluna, linha, 'O');
-            set(coluna+1, linha, 'O');
-            set(coluna, linha-1, 'O');
-            set(coluna+1, linha-1, 'O');
-
-            //preenche os espacos abaixo da peca 
-            for (int i = 0; i<linha-1; i++){
-                if (!estaPreenchido(coluna, i))
-                    set(coluna, i, ' ');
-                if (!estaPreenchido(coluna+1, i))
-                    set(coluna+1, i, ' ');
-            }
-
-            //atualiza a altura da coluna
-            for (int i = 0; i<2; i++){
-                if (alturas[coluna+i] <= linha)
-                    alturas[coluna+i] = linha+1;
-            } 
-
-        } else 
+    if (get(c, l) != empty() ||
+        get(c, l-1) != empty() ||
+        get(c+1, l) != empty() ||
+        get(c+1, l-1) != empty())
             return false;
+
+    set(c, l, value);
+    set(c, l-1, value);
+    set(c+1, l, value);
+    set(c+1, l-1, value);
+
+    return true;
+}
+
+bool Tetris::addS(int c, int l, int r){
+
+    char value = 'S';
+    
+    if (areEquals(r, 0) || 
+        areEquals(r, 180)){
+        
+        if (areEquals(c+2, this->columns) ||
+            isGreaterThen(c+2, this->columns) ||
+            isSmallerThen(l-1, 0))
+                return false;
+
+        if (get(c+1, l) != empty() ||
+            get(c, l-1) != empty() ||
+            get(c+2, l) != empty() ||
+            get(c+1, l-1) != empty())
+                return false;
+
+        set(c+1, l, value);
+        set(c, l-1, value);
+        set(c+2, l, value);
+        set(c+1, l-1, value);
+
+        return true;
+
+    } else{
+
+        if (areEquals(c+1, this->columns) ||
+            isGreaterThen(c+1, this->columns) ||
+            isSmallerThen(l-2, 0))
+                return false;
+
+        if (get(c, l) != empty() ||
+            get(c, l-1) != empty() ||
+            get(c+1, l-1) != empty() ||
+            get(c+1, l-2) != empty())
+                return false;
+
+        set(c, l, value);
+        set(c, l-1, value);
+        set(c+1, l-1, value);
+        set(c+1, l-2, value);     
 
         return true;
     }
+    return false;
+}
 
-    bool Tetris::addS(int coluna, int linha, int rotacao){
-        if (rotacao == 0 || rotacao == 180){
+bool Tetris::addT(int c, int l, int r){
+    
+    char value = 'T';
 
-            //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-            if (linha - 1 < 0 || coluna + 2 >= getNumColunas()) 
-                return false;
-
-            //verifica se os espacos que serao utilizados estao vazios
-            if (get(coluna, linha-1) == ' '
-                && get(coluna+1, linha) == ' '
-                && get(coluna+2, linha) == ' '
-                && get(coluna+1, linha-1) == ' ')
-            {
-                //acrescenta a peca
-                set(coluna, linha-1, 'S');
-                set(coluna+1, linha, 'S');
-                set(coluna+2, linha, 'S');
-                set(coluna+1, linha-1, 'S');
-
-                //preenche os espacos abaixo da peca 
-                for (int i = 0; i<2; i++){
-                    for (int j = 0; j<linha-1; j++){
-                        if(!estaPreenchido(coluna+i, j))
-                            set(coluna+i, j, ' ');
-                    }
-                }
-                for (int j = 0; j<linha; j++){
-                    if(!estaPreenchido(coluna+2, j))
-                        set(coluna+2, j, ' ');
-                }
-
-                //atualiza a altura da coluna
-                for (int i = 1; i<3; i++){
-                    if(alturas[coluna+i] <=linha)
-                        alturas[coluna+i] = linha+1;
-                } 
-                if(alturas[coluna] <=linha-1)
-                        alturas[coluna] = linha;
-
-            } else 
-                return false;    
+    switch (r){
+        case 0:
             
-            return true; 
-        } else if (rotacao == 90 || rotacao == 270){
-            //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-            if (linha - 2 < 0 || coluna + 1 >= getNumColunas()) 
-                return false;
+            //Possibilidade de encaixe no tabuleiro
+            if (areEquals(c+2, this->columns) ||
+                isGreaterThen(c+2, this->columns) ||
+                isSmallerThen(l-1, 0))
+                    return false;
 
-            //verifica se os espacos que serao utilizados estao vazios
-            if (get(coluna, linha) == ' '
-                && get(coluna, linha-1) == ' '
-                && get(coluna+1, linha-1) == ' '
-                && get(coluna+1, linha-2) == ' ')
-            {
-                //acrescenta a peca
-                set(coluna, linha, 'S');
-                set(coluna, linha-1, 'S');
-                set(coluna+1, linha-1, 'S');
-                set(coluna+1, linha-2, 'S');
+            //Disponibilidade dos pixels 
+            if (get(c, l) != empty() ||
+                get(c+1, l) != empty() ||
+                get(c+2, l) != empty() ||
+                get(c+1, l-1) != empty())
+                    return false;
 
-                //preenche os espacos abaixo da peca 
-                for (int j = 0; j<linha-1; j++){
-                    if(!estaPreenchido(coluna, j))
-                        set(coluna, j, ' ');
-                }
-                for (int j = 0; j<linha-2; j++){
-                    if(!estaPreenchido(coluna+1, j))
-                        set(coluna+1, j, ' ');
-                }
+            //Adição da peça
+            set(c, l, value);
+            set(c+1, l, value);
+            set(c+2, l, value);
+            set(c+1, l-1, value);
 
-                //atualiza a altura da coluna
-                if(alturas[coluna] <=linha)
-                    alturas[coluna] = linha+1;
-                if(alturas[coluna+1] <=linha-1)
-                        alturas[coluna+1] = linha;
+            return true;
 
-            } else 
-                return false;    
+        case 90:
+            if (areEquals(c+1, this->columns) ||
+                isGreaterThen(c+1, this->columns) ||
+                isSmallerThen(l-2, 0))
+                    return false;
+
+            if (get(c+1, l) != empty() ||
+                get(c+1, l-1) != empty() ||
+                get(c+1, l-2) != empty() ||
+                get(c, l-1) != empty())
+                    return false;
+
+            set(c+1, l, value);
+            set(c+1, l-1, value);
+            set(c+1, l-2, value);
+            set(c, l-1, value);     
+
+            return true;
+
+        case 180:
             
-            return true;   
-        }
-        return false;
+            //Possibilidade de encaixe no tabuleiro
+            if (areEquals(c+2, this->columns) ||
+                isGreaterThen(c+2, this->columns) ||
+                isSmallerThen(l-1, 0))
+                    return false;
+
+            //Disponibilidade dos pixels 
+            if (get(c+1, l) != empty() ||
+                get(c, l-1) != empty() ||
+                get(c+1, l-1) != empty() ||
+                get(c+2, l-1) != empty())
+                    return false;
+
+            //Adição da peça
+            set(c+1, l, value);
+            set(c, l-1, value);
+            set(c+1, l-1, value);
+            set(c+2, l-1, value);
+
+            return true;
+
+        case 270:
+            if (areEquals(c+1, this->columns) ||
+                isGreaterThen(c+1, this->columns) ||
+                isSmallerThen(l-2, 0))
+                    return false;
+
+            if (get(c, l) != empty() ||
+                get(c, l-1) != empty() ||
+                get(c, l-2) != empty() ||
+                get(c+1, l-1) != empty())
+                    return false;
+
+            set(c, l, value);     
+            set(c, l-1, value);
+            set(c, l-2, value);
+            set(c+1, l-1, value);
+
+            return true;
     }
+    return false;
+}
 
-    bool Tetris::addT(int coluna, int linha, int rotacao){
+bool Tetris::addZ(int c, int l, int r){
 
-        switch (rotacao){
-            case 0:
-                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-                if (linha - 1 < 0 || coluna + 2 >= getNumColunas()) 
-                    return false;
-
-                //verifica se os espacos que serao utilizados estao vazios
-                if (get(coluna, linha) == ' '
-                    && get(coluna+1, linha) == ' '
-                    && get(coluna+2, linha) == ' '
-                    && get(coluna+1, linha-1) == ' ')
-                {
-                    //acrescenta a peca
-                    set(coluna, linha, 'T');
-                    set(coluna+1, linha, 'T');
-                    set(coluna+2, linha, 'T');
-                    set(coluna+1, linha-1, 'T');
-
-                    //preenche os espacos abaixo da peca 
-                    for (int i = 0; i<3; i++){
-                        if (i == 0 || i == 2){
-                            for (int j = 0; j<linha; j++){
-                                if (!estaPreenchido(coluna+i, j))
-                                    set(coluna+i, j, ' ');
-                            }
-                        } else{
-                            for (int j = 0; j<linha-1; j++){
-                                if (!estaPreenchido(coluna+i, j))
-                                    set(coluna+i, j, ' ');
-                            }
-                        } 
-                    }
-
-                    //atualiza a altura da coluna
-                    for (int i = 0; i<3; i++){
-                        if (alturas[coluna+i] <= linha)
-                            alturas[coluna+i] = linha+1;
-                    } 
-
-                } else 
-                    return false;
-
-                return true;
-
-            case 90:
-                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-                if (linha - 2 < 0 || coluna + 1 >= getNumColunas()) 
-                    return false;
-
-                //verifica se os espacos que serao utilizados estao vazios
-                if (get(coluna+1, linha) == ' '
-                    && get(coluna+1, linha-1) == ' '
-                    && get(coluna+1, linha-2) == ' '
-                    && get(coluna, linha-1) == ' ')
-                {
-                    //acrescenta a peca
-                    set(coluna+1, linha, 'T');
-                    set(coluna+1, linha-1, 'T');
-                    set(coluna+1, linha-2, 'T');
-                    set(coluna, linha-1, 'T');
-
-                    //preenche os espacos abaixo da peca 
-                    for (int i = 0; i<linha-1; i++){
-                        if (!estaPreenchido(coluna, i))
-                            set(coluna, i, ' ');
-                    }
-                    for (int i = 0; i<linha-2; i++){
-                        if (!estaPreenchido(coluna+1, i))
-                            set(coluna+1, i, ' ');
-                    }
-
-                    //atualiza a altura da coluna
-                    if (alturas[coluna] <= linha-1) 
-                        alturas[coluna] = linha;
-                    if (alturas[coluna+1] < linha) 
-                        alturas[coluna+1] = linha+1;
-
-                } else 
-                    return false;
-
-                return true;
-            case 180:
-
-                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-                if (linha - 1 < 0 || coluna + 2 >= getNumColunas()) 
-                    return false;
-
-                //verifica se os espacos que serao utilizados estao vazios
-                if (get(coluna+1, linha) == ' '
-                    && get(coluna, linha-1) == ' '
-                    && get(coluna+1, linha-1) == ' '
-                    && get(coluna+2, linha-1) == ' ')
-                {
-                    //acrescenta a peca
-                    set(coluna+1, linha, 'T');
-                    set(coluna, linha-1, 'T');
-                    set(coluna+1, linha-1, 'T');
-                    set(coluna+2, linha-1, 'T');
-
-                    //preenche os espacos abaixo da peca 
-                    for (int i = 0; i<3; i++){
-                        for (int j = 0; j<linha-1; j++){
-                            if (!estaPreenchido(coluna+i, j))
-                                set(coluna+i, j, ' ');
-                        }
-                    }
-
-                    //atualiza a altura da coluna
-                    for (int i = 0; i<3; i++){
-                        if (i == 0 || i == 2){
-                            if (alturas[coluna+i] <= linha-1)
-                                alturas[coluna+i] = linha;
-                        } else{
-                            if (alturas[coluna+i] <= linha)
-                                alturas[coluna+i] = linha+1;
-                        }
-                    } 
-                } else 
-                    return false;
-
-                return true;
-            case 270:
-                //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-                if (linha - 2 < 0 || coluna + 1 >= getNumColunas()) 
-                    return false;
-
-                //verifica se os espacos que serao utilizados estao vazios
-                if (get(coluna, linha) == ' '
-                    && get(coluna, linha-1) == ' '
-                    && get(coluna, linha-2) == ' '
-                    && get(coluna+1, linha-1) == ' ')
-                {
-                    //acrescenta a peca
-                    set(coluna, linha, 'T');
-                    set(coluna, linha-1, 'T');
-                    set(coluna, linha-2, 'T');
-                    set(coluna+1, linha-1, 'T');
-
-                    //preenche os espacos abaixo da peca 
-                    for (int i = 0; i<linha-2; i++){
-                        if (!estaPreenchido(coluna, i))
-                            set(coluna, i, ' ');
-                        
-                    }
-                    for (int i = 0; i<linha-1; i++){
-                       if (!estaPreenchido(coluna+1, i))
-                            set(coluna+1, i, ' ');   
-                    }
-
-                    //atualiza a altura da coluna
-                    if (alturas[coluna] <= linha) 
-                        alturas[coluna] = linha+1;
-                    if (alturas[coluna+1] <= linha-1) 
-                        alturas[coluna+1] = linha;
-
-                } else 
-                    return false;
-
-                return true;
-
-            default:
-                return false;
-        }
-    }
-
-    bool Tetris::addZ(int coluna, int linha, int rotacao){
-        if (rotacao == 0 || rotacao == 180){
-
-            //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-            if (linha - 1 < 0 || coluna + 2 >= getNumColunas()) 
+    char value = 'Z';
+    
+    if (areEquals(r, 0) || 
+        areEquals(r, 180)){
+        
+        if (areEquals(c+2, this->columns) ||
+            isGreaterThen(c+2, this->columns) ||
+            isSmallerThen(l-1, 0))
                 return false;
 
-            //verifica se os espacos que serao utilizados estao vazios
-            if (get(coluna, linha) == ' '
-                && get(coluna+1, linha) == ' '
-                && get(coluna+2, linha-1) == ' '
-                && get(coluna+1, linha-1) == ' ')
-            {
-                //acrescenta a peca
-                set(coluna, linha, 'Z');
-                set(coluna+1, linha, 'Z');
-                set(coluna+2, linha-1, 'Z');
-                set(coluna+1, linha-1, 'Z');
-
-                //preenche os espacos abaixo da peca 
-                for (int i = 1; i<3; i++){
-                    for (int j = 0; j<linha-1; j++){
-                        if(!estaPreenchido(coluna+i, j))
-                            set(coluna+i, j, ' ');
-                    }
-                }
-                for (int j = 0; j<linha; j++){
-                    if(!estaPreenchido(coluna, j))
-                        set(coluna, j, ' ');
-                }
-
-                //atualiza a altura da coluna
-                for (int i = 0; i<2; i++){
-                    if(alturas[coluna+i] <=linha)
-                        alturas[coluna+i] = linha+1;
-                } 
-                if(alturas[coluna+2] <=linha-1)
-                        alturas[coluna] = linha;
-
-            } else 
-                return false;    
-            
-            return true; 
-        } else if (rotacao == 90 || rotacao == 270){
-            //verifica se há altura/largura suficiente pra peca a partir do pixel de referencia 
-            if (linha - 2 < 0 || coluna + 1 >= getNumColunas()) 
+        if (get(c+1, l) != empty() ||
+            get(c, l) != empty() ||
+            get(c+2, l-1) != empty() ||
+            get(c+1, l-1) != empty())
                 return false;
 
-            //verifica se os espacos que serao utilizados estao vazios
-            if (get(coluna, linha-1) == ' '
-                && get(coluna, linha-2) == ' '
-                && get(coluna+1, linha) == ' '
-                && get(coluna+1, linha-1) == ' ')
-            {
-                //acrescenta a peca
-                set(coluna, linha-1, 'Z');
-                set(coluna, linha-2, 'Z');
-                set(coluna+1, linha-1, 'Z');
-                set(coluna+1, linha, 'Z');
+        set(c+1, l, value);
+        set(c, l, value);
+        set(c+2, l-1, value);
+        set(c+1, l-1, value);
 
-                //preenche os espacos abaixo da peca 
-                for (int j = 0; j<linha-2; j++){
-                    if(!estaPreenchido(coluna, j))
-                        set(coluna, j, ' ');
-                }
-                for (int j = 0; j<linha-1; j++){
-                    if(!estaPreenchido(coluna+1, j))
-                        set(coluna+1, j, ' ');
-                }
+        return true;
 
-                //atualiza a altura da coluna
-                if(alturas[coluna] <=linha-1)
-                    alturas[coluna] = linha;
-                if(alturas[coluna+1] <=linha)
-                    alturas[coluna+1] = linha+1;
+    } else{
 
-            } else 
-                return false;    
-            
-            return true;   
-        }
-        return false;
+        if (areEquals(c+1, this->columns) ||
+            isGreaterThen(c+1, this->columns) ||
+            isSmallerThen(l-2, 0))
+                return false;
+
+        if (get(c, l-1) != empty() ||
+            get(c, l-2) != empty() ||
+            get(c+1, l) != empty() ||
+            get(c+1, l-1) != empty())
+                return false;
+
+        set(c, l-1, value);
+        set(c, l-2, value);
+        set(c+1, l, value);
+        set(c+1, l-1, value);     
+
+        return true;
     }
-
-    void Tetris::exibeJogo(){
-        int altura;
-        int alturaMaxima = getAltura();
-        cout << "------------------------ TETRIS ------------------------" << endl;
-        for (int i = alturaMaxima-1; i>=0; i--){
-            for (int j = 0; j<colunas; j++){
-                cout << get(j, i) << " ";
-            }
-            cout << endl;
-        }
-        cout << "--------------------------------------------------------" << endl;
-    }
+    return false;
+}
